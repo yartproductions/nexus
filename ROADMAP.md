@@ -26,19 +26,24 @@
 - [x] Overload warning
 - [x] Defer mission
 - [x] Local completion tracking
-- [x] Auto-promote next unfinished mission to center objective
+- [x] Auto-promote next unfinished mission
 - [ ] End-of-day reset screen
 - [ ] Weekly review
 - [ ] User-adjustable daily capacity
 
 ## Priority 3 — Schedule / Calendar
 - [x] Basic chronological Canvas calendar view
-- [ ] Class schedule
-- [ ] Work schedule
-- [ ] Commute blocks
-- [ ] Personal events
+- [x] Class schedule blocks
+- [x] Work schedule blocks
+- [x] Commute blocks
+- [x] Personal event blocks
+- [x] Today timeline
+- [x] Auto-place unfinished daily missions into free time
 - [ ] Google Calendar integration
-- [ ] Auto-place tasks into free time
+- [ ] Recurring schedule editor polish
+- [ ] Multi-day week view
+- [ ] Conflict warnings
+- [ ] Drag/drop timeline editing
 
 ## Priority 4 — Task Intelligence
 - [x] Basic breakdown from Canvas description

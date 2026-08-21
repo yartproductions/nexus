@@ -1,33 +1,48 @@
-NEXUS v3 — DAILY COMMAND SYSTEM
+NEXUS v4 — SCHEDULE / CALENDAR
 
-This build keeps the working Canvas + YouTube playlist integrations and adds the
-next roadmap item: Priority 2 — Daily Command System.
+This build continues the roadmap with Priority 3.
 
 NEW
 ---
-- Automatically selects up to 5 daily missions
-- Prefers today, then this week, then highest-priority actionable tasks
-- Shows total estimated workload
-- Warns above 4 hours of planned work
-- DONE / UNDO tracking
-- DEFER button
-- FOCUS button
-- Automatically moves the next unfinished daily mission into the center objective
-- Daily completion/defer state is stored locally and resets naturally by date
+- Full Schedule view inside Calendar
+- Create fixed blocks for:
+  Class
+  Work
+  Commute
+  Personal events
+- Assign blocks to recurring weekdays
+- Daily vertical timeline
+- Saved schedule blocks persist locally
+- NEXUS automatically places unfinished daily missions into open time windows
+- Free-time calculation
+- Delete/edit by removing/recreating blocks for now
+
+HOW TO USE
+----------
+Open NEXUS -> Calendar.
+Add a title, block type, start/end time, and optional days:
+mon,tue,wed,thu,fri,sat,sun
+
+Example:
+CS 240 Lecture
+Class
+10:00 - 11:15
+mon,wed
 
 DEPLOY
 ------
-Replace/add these in your GitHub repo root:
-index.html
-ROADMAP.md
-api/canvas.js
-api/youtube-playlist.js
-manifest.json
-sw.js
-icon-192.png
-icon-512.png
+Replace the files in your GitHub repo with this build, commit, and let Vercel redeploy.
 
-Keep your existing Vercel environment variables:
+Keep:
 CANVAS_URL
 CANVAS_TOKEN
 YOUTUBE_API_KEY
+
+NEXT ROADMAP ITEM
+-----------------
+Priority 4 — Task Intelligence.
+
+
+COLOR UPDATE
+------------
+Main accent changed from neon orange to a restrained light-blue/cyan HUD palette. Red remains reserved for warnings and critical states.
