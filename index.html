@@ -1,580 +1,279 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#090b0d" />
-  <title>NEXUS // Personal Command OS</title>
-  <style>
-    :root{
-      --bg:#080a0c;
-      --panel:#0d1115;
-      --panel-2:#10151a;
-      --line:#3b2b1c;
-      --line-soft:rgba(255,153,51,.16);
-      --amber:#f0a33a;
-      --amber-2:#c87825;
-      --red:#ff4b2e;
-      --green:#8fce7b;
-      --text:#f1ede6;
-      --muted:#8f8a82;
-      --shadow:0 0 30px rgba(240,163,58,.06);
-      --radius:18px;
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 50% 42%, rgba(240,163,58,.035), transparent 30%),
-        linear-gradient(180deg,#07090b,#090c0f 45%,#060708);
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      overflow-x:hidden;
-    }
-
-    button,a{font:inherit}
-    button{color:inherit}
-    .mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
-
-    .app{
-      position:relative;
-      min-height:100svh;
-      padding:28px;
-      overflow:hidden;
-    }
-
-    .grid-bg{
-      position:absolute; inset:0; pointer-events:none; opacity:.3;
-      background-image:
-        linear-gradient(rgba(240,163,58,.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(240,163,58,.025) 1px, transparent 1px);
-      background-size:48px 48px;
-      mask-image:radial-gradient(circle at center, #000 28%, transparent 82%);
-    }
-
-    .hud-line{
-      height:1px;
-      background:linear-gradient(90deg,transparent,var(--line-soft),transparent);
-    }
-
-    .topbar{
-      position:relative;
-      z-index:2;
-      display:grid;
-      grid-template-columns:1fr auto 1fr;
-      align-items:start;
-      gap:24px;
-      min-height:92px;
-    }
-
-    .brand{display:flex;gap:12px;align-items:flex-start}
-    .brand-mark{
-      width:28px;height:28px;margin-top:2px;
-      border:1px solid var(--amber);
-      transform:rotate(45deg);
-      position:relative;
-      box-shadow:0 0 18px rgba(240,163,58,.08);
-    }
-    .brand-mark::after{
-      content:"";
-      position:absolute;inset:8px;border:1px solid var(--red);
-    }
-    .brand-title{
-      font-size:22px;letter-spacing:.34em;color:var(--amber);font-weight:600;
-    }
-    .brand-sub{
-      margin-top:5px;font-size:10px;letter-spacing:.11em;color:var(--amber-2);
-    }
-
-    .clock{text-align:center}
-    .clock-time{font-size:31px;color:var(--amber);letter-spacing:.06em}
-    .clock-date{font-size:11px;color:#b7afa4;margin-top:6px}
-    .sync{font-size:10px;color:#a59d92;margin-top:10px;letter-spacing:.08em}
-    .sync i{
-      display:inline-block;width:6px;height:6px;border-radius:50%;
-      background:var(--red);margin-left:6px;box-shadow:0 0 10px rgba(255,75,46,.6);
-    }
-
-    .top-status{justify-self:end;display:flex;gap:16px;color:var(--amber);font-size:12px;padding-top:8px}
-
-    .workspace{
-      position:relative;
-      z-index:2;
-      display:grid;
-      grid-template-columns:minmax(240px,320px) minmax(420px,1fr) minmax(240px,320px);
-      gap:24px;
-      min-height:calc(100svh - 180px);
-      align-items:stretch;
-    }
-
-    .column{display:flex;flex-direction:column;gap:20px;min-width:0}
-
-    .panel{
-      border:1px solid rgba(240,163,58,.35);
-      background:linear-gradient(180deg,rgba(18,22,26,.92),rgba(9,12,15,.78));
-      box-shadow:var(--shadow);
-      clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));
-    }
-    .panel-inner{padding:18px}
-    .panel-title{
-      display:flex;justify-content:space-between;gap:12px;align-items:center;
-      color:var(--amber);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
-      margin-bottom:14px;
-    }
-    .panel-title small{color:var(--muted);font-size:9px}
-
-    .mission-list,.alert-list{display:flex;flex-direction:column}
-    .mission,.alert{
-      display:grid;grid-template-columns:auto 1fr auto;
-      gap:12px;align-items:center;
-      padding:14px 2px;
-      border-top:1px solid rgba(240,163,58,.10);
-    }
-    .mission:first-child,.alert:first-child{border-top:0}
-    .diamond{
-      width:28px;height:28px;border:1px solid rgba(240,163,58,.55);
-      transform:rotate(45deg);display:grid;place-items:center;
-    }
-    .diamond span{transform:rotate(-45deg);color:var(--amber);font-size:10px}
-    .mission-name,.alert-name{font-size:13px}
-    .mission-sub,.alert-sub{font-size:10px;color:var(--muted);margin-top:4px}
-    .mission-time,.alert-time{font-size:10px;color:var(--amber)}
-    .danger{color:var(--red)!important}
-    .ok{color:var(--green)!important}
-
-    .status-stack{display:grid;gap:10px;margin-top:auto}
-    .status-row{
-      display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
-      padding:10px 0;border-top:1px solid rgba(240,163,58,.08)
-    }
-    .status-row:first-child{border-top:0}
-    .status-label{font-size:11px;color:var(--amber)}
-    .status-sub{font-size:9px;color:var(--muted);margin-top:3px}
-    .status-value{font-size:10px;color:#c8c0b4}
-
-    .core-wrap{
-      position:relative;
-      min-height:100%;
-      display:grid;
-      place-items:center;
-      padding:48px 36px 110px;
-    }
-
-    .core-art{
-      position:absolute;
-      inset:8% 2% 14%;
-      opacity:.62;
-      pointer-events:none;
-    }
-    .ring,.ring::before,.ring::after{
-      position:absolute;inset:50%;content:"";
-      transform:translate(-50%,-50%);
-      border:1px solid rgba(240,163,58,.12);
-      border-radius:50%;
-    }
-    .ring{width:72%;aspect-ratio:1/1}
-    .ring::before{width:82%;aspect-ratio:1/1}
-    .ring::after{width:118%;aspect-ratio:1/1}
-
-    .axis{
-      position:absolute;left:50%;top:7%;bottom:12%;width:1px;
-      background:linear-gradient(transparent,rgba(240,163,58,.18),transparent);
-    }
-    .axis-h{
-      position:absolute;top:50%;left:8%;right:8%;height:1px;
-      background:linear-gradient(90deg,transparent,rgba(240,163,58,.18),transparent);
-    }
-
-    .core{
-      width:min(100%,640px);
-      padding:48px 34px;
-      text-align:center;
-      border:1px solid rgba(240,163,58,.42);
-      background:rgba(8,10,12,.72);
-      clip-path:polygon(12% 0,88% 0,100% 18%,100% 82%,88% 100%,12% 100%,0 82%,0 18%);
-      box-shadow:0 0 50px rgba(240,163,58,.05);
-      position:relative;
-      z-index:2;
-    }
-
-    .core-emblem{
-      width:42px;height:42px;margin:0 auto 26px;
-      border:1px solid var(--amber);
-      transform:rotate(45deg);position:relative;
-    }
-    .core-emblem::before,.core-emblem::after{
-      content:"";position:absolute;border:1px solid rgba(240,163,58,.4);
-      inset:7px;
-    }
-    .core-emblem::after{inset:13px;background:var(--red);box-shadow:0 0 18px rgba(255,75,46,.35)}
-    .core-kicker{font-size:11px;color:var(--amber);letter-spacing:.11em}
-    .core-title{
-      font-size:clamp(30px,4vw,52px);letter-spacing:.04em;color:var(--amber);
-      margin:12px 0 10px;font-weight:500;
-    }
-    .core-desc{font-size:13px;color:#aaa296}
-    .protocol{
-      margin-top:28px;padding-top:18px;border-top:1px solid rgba(240,163,58,.18);
-      font-size:10px;color:var(--muted);letter-spacing:.08em;
-    }
-    .protocol strong{display:block;margin-top:6px;color:var(--red);font-weight:500}
-
-    .core-actions{
-      display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px
-    }
-    .btn{
-      border:1px solid rgba(240,163,58,.45);
-      background:rgba(13,17,21,.8);
-      padding:11px 18px;
-      color:var(--amber);
-      text-transform:uppercase;
-      font-size:10px;letter-spacing:.08em;
-      cursor:pointer;
-      clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
-    }
-    .btn:hover{background:rgba(240,163,58,.06)}
-    .btn.primary{border-color:rgba(255,75,46,.65);color:var(--red)}
-
-    .nav{
-      position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
-      width:min(680px,86%);
-      display:grid;grid-template-columns:repeat(5,1fr);
-      border:1px solid rgba(240,163,58,.25);
-      background:rgba(8,10,12,.92);
-      clip-path:polygon(18px 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%,0 18px);
-      z-index:5;
-    }
-    .nav button{
-      background:none;border:0;padding:14px 6px;color:#aa9f90;
-      font-size:9px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer
-    }
-    .nav button.active{color:var(--red);box-shadow:inset 0 -2px var(--red)}
-
-    .mobile-only{display:none}
-
-    @media (max-width: 1050px){
-      .app{padding:20px}
-      .workspace{
-        grid-template-columns:250px minmax(380px,1fr);
-      }
-      .right-col{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr}
-      .right-col .panel:first-child{min-height:280px}
-      .right-col .status-stack{margin-top:0}
-      .core-wrap{min-height:660px}
-    }
-
-    @media (max-width: 760px){
-      body{overflow:auto}
-      .app{padding:14px 14px 94px}
-      .topbar{
-        grid-template-columns:1fr auto;
-        min-height:120px;
-      }
-      .brand-title{font-size:17px}
-      .brand-sub{font-size:8px}
-      .clock{
-        grid-column:1 / -1;
-        grid-row:2;
-        margin-top:8px;
-      }
-      .clock-time{font-size:26px}
-      .top-status{font-size:10px;gap:10px}
-      .workspace{display:flex;flex-direction:column;gap:14px}
-      .center-col{order:1}
-      .left-col{order:2}
-      .right-col{order:3;display:flex}
-      .core-wrap{
-        min-height:auto;
-        padding:18px 0 0;
-      }
-      .core-art{inset:0;opacity:.45}
-      .core{
-        width:100%;
-        padding:42px 22px;
-        clip-path:polygon(10% 0,90% 0,100% 15%,100% 85%,90% 100%,10% 100%,0 85%,0 15%);
-      }
-      .core-title{font-size:32px}
-      .core-actions{gap:8px}
-      .btn{padding:10px 12px}
-      .nav{
-        position:fixed;
-        left:12px;right:12px;bottom:10px;transform:none;
-        width:auto;
-        backdrop-filter:blur(12px);
-      }
-      .nav button{padding:12px 3px;font-size:8px}
-      .panel-inner{padding:15px}
-      .status-stack{grid-template-columns:1fr 1fr;margin-top:0}
-      .status-row{
-        padding:12px;border:1px solid rgba(240,163,58,.18);
-        grid-template-columns:auto 1fr;
-      }
-      .status-value{grid-column:2}
-      .desktop-only{display:none}
-      .mobile-only{display:block}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080a0c">
+<title>NEXUS // Personal Command OS</title>
+<style>
+:root{
+  --bg:#07090b;--panel:#0d1115;--amber:#eea13a;--amber2:#bd7226;
+  --red:#ff4d32;--green:#86c77a;--text:#eee9e1;--muted:#8d887f;
+  --line:rgba(238,161,58,.28);--soft:rgba(238,161,58,.08)
+}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:
+radial-gradient(circle at 50% 42%,rgba(238,161,58,.045),transparent 28%),
+linear-gradient(180deg,#07090b,#0a0d10 50%,#060708)}
+button,a{font:inherit}.mono{font-family:"SFMono-Regular",Consolas,monospace}
+.app{min-height:100svh;padding:24px;position:relative;overflow:hidden}
+.grid{position:absolute;inset:0;pointer-events:none;opacity:.35;background-image:
+linear-gradient(rgba(238,161,58,.022) 1px,transparent 1px),
+linear-gradient(90deg,rgba(238,161,58,.022) 1px,transparent 1px);
+background-size:54px 54px;mask-image:radial-gradient(circle,#000 20%,transparent 82%)}
+.top{position:relative;z-index:2;display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:18px;min-height:92px}
+.brand{display:flex;gap:12px}.mark{width:27px;height:27px;border:1px solid var(--amber);transform:rotate(45deg);position:relative}
+.mark:after{content:"";position:absolute;inset:8px;border:1px solid var(--red)}
+.logo{color:var(--amber);letter-spacing:.3em;font-size:21px}.sub{color:var(--amber2);font-size:9px;letter-spacing:.12em;margin-top:4px}
+.clock{text-align:center}.time{color:var(--amber);font-size:29px}.date{font-size:10px;color:#b8b0a5;margin-top:5px}
+.sync{font-size:9px;color:var(--muted);margin-top:8px}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);margin-left:5px}
+.topright{text-align:right;color:var(--amber);font-size:10px;padding-top:7px}
+.layout{position:relative;z-index:2;display:grid;grid-template-columns:minmax(225px,300px) minmax(390px,1fr) minmax(225px,300px);gap:22px;min-height:calc(100svh - 150px)}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}.panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(15,19,23,.92),rgba(7,9,11,.78));clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.inner{padding:17px}.ptitle{display:flex;justify-content:space-between;gap:8px;color:var(--amber);font-size:11px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px}
+.small{font-size:9px;color:var(--muted)}.danger{color:var(--red)!important}.ok{color:var(--green)!important}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;padding:13px 0;border-top:1px solid rgba(238,161,58,.09)}
+.item:first-child{border-top:0}.dia{width:27px;height:27px;border:1px solid rgba(238,161,58,.45);transform:rotate(45deg);display:grid;place-items:center}
+.dia span{transform:rotate(-45deg);color:var(--amber);font-size:9px}.iname{font-size:12px}.imeta{font-size:9px;color:var(--muted);margin-top:4px}.iright{font-size:9px;color:var(--amber);text-align:right}
+.statuses{display:grid;gap:8px;margin-top:auto}.status{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid rgba(238,161,58,.08)}
+.status:first-child{border-top:0}.sname{font-size:10px;color:var(--amber)}.smeta{font-size:8px;color:var(--muted);margin-top:2px}.sval{font-size:9px}
+.center{position:relative;min-height:100%;display:grid;place-items:center;padding:40px 30px 100px}
+.rings{position:absolute;inset:7% 2% 13%;opacity:.75;pointer-events:none}.ring{position:absolute;left:50%;top:50%;width:70%;aspect-ratio:1;border:1px solid rgba(238,161,58,.11);border-radius:50%;transform:translate(-50%,-50%)}
+.ring:before,.ring:after{content:"";position:absolute;left:50%;top:50%;aspect-ratio:1;border:1px solid rgba(238,161,58,.09);border-radius:50%;transform:translate(-50%,-50%)}
+.ring:before{width:82%}.ring:after{width:118%}.axis{position:absolute;top:4%;bottom:10%;left:50%;width:1px;background:linear-gradient(transparent,rgba(238,161,58,.16),transparent)}
+.core{position:relative;z-index:2;width:min(100%,650px);text-align:center;padding:45px 34px;border:1px solid rgba(238,161,58,.4);background:rgba(7,9,11,.76);clip-path:polygon(12% 0,88% 0,100% 18%,100% 82%,88% 100%,12% 100%,0 82%,0 18%)}
+.emblem{width:41px;height:41px;border:1px solid var(--amber);transform:rotate(45deg);margin:0 auto 25px;position:relative}.emblem:after{content:"";position:absolute;inset:13px;background:var(--red);box-shadow:0 0 16px rgba(255,77,50,.36)}
+.kicker{font-size:10px;color:var(--amber);letter-spacing:.11em}.focus{font-size:clamp(29px,4vw,50px);line-height:1.02;color:var(--amber);margin:12px 0 10px;font-weight:500}.course{font-size:12px;color:#b0a89c}
+.details{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:17px;font-size:9px;color:var(--muted)}.details strong{color:#d6cec3;font-weight:500}
+.actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:24px}.btn{border:1px solid rgba(238,161,58,.45);background:rgba(13,17,21,.85);color:var(--amber);padding:10px 15px;text-transform:uppercase;text-decoration:none;font-size:9px;letter-spacing:.08em;cursor:pointer;clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)}
+.btn.primary{border-color:rgba(255,77,50,.65);color:var(--red)}.btn[aria-disabled="true"]{opacity:.35;pointer-events:none}
+.nav{position:absolute;z-index:4;bottom:16px;left:50%;transform:translateX(-50%);width:min(680px,88%);display:grid;grid-template-columns:repeat(5,1fr);border:1px solid rgba(238,161,58,.2);background:rgba(7,9,11,.93)}
+.nav button{border:0;background:none;color:#a0978b;padding:13px 4px;font-size:8px;text-transform:uppercase;cursor:pointer}.nav .active{color:var(--red);box-shadow:inset 0 -2px var(--red)}
+.notice{padding:11px;border:1px solid rgba(255,77,50,.3);color:#c8beb1;font-size:10px;margin-bottom:10px;display:none}
+.breakdown{display:none;margin-top:18px;padding-top:15px;border-top:1px solid rgba(238,161,58,.15);text-align:left}.breakdown.open{display:block}
+.breakdown-title{color:var(--amber);font-size:10px;letter-spacing:.09em}.breakdown ol{margin:10px 0 0;padding-left:19px;color:#bcb4a8;font-size:11px;line-height:1.6}
+.desc{margin-top:10px;color:var(--muted);font-size:10px;line-height:1.5;max-height:95px;overflow:auto}
+.loading{color:var(--amber);font-size:11px;letter-spacing:.1em}
+@media(max-width:1050px){.layout{grid-template-columns:245px minmax(370px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:650px}}
+@media(max-width:760px){
+.app{padding:14px 14px 88px}.top{grid-template-columns:1fr auto;min-height:118px}.clock{grid-column:1/-1;grid-row:2}.time{font-size:25px}.logo{font-size:17px}.topright{font-size:9px}
+.layout{display:flex;flex-direction:column;gap:13px}.middle{order:1}.left{order:2}.right{order:3;display:flex}.center{min-height:auto;padding:18px 0 0}.core{padding:40px 20px}.focus{font-size:31px}.statuses{grid-template-columns:1fr 1fr;margin-top:0}.status{border:1px solid rgba(238,161,58,.13);padding:10px;grid-template-columns:auto 1fr}.sval{grid-column:2}
+.nav{position:fixed;left:10px;right:10px;bottom:9px;transform:none;width:auto;backdrop-filter:blur(10px)}.nav button{font-size:7px;padding:12px 2px}.inner{padding:14px}
+}
+</style>
 </head>
 <body>
-  <main class="app">
-    <div class="grid-bg"></div>
+<main class="app">
+<div class="grid"></div>
 
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark"></div>
-        <div>
-          <div class="brand-title">NEXUS</div>
-          <div class="brand-sub mono">PERSONAL COMMAND OS</div>
-        </div>
+<header class="top">
+  <div class="brand"><div class="mark"></div><div><div class="logo">NEXUS</div><div class="sub mono">PERSONAL COMMAND OS</div></div></div>
+  <div class="clock mono"><div id="clock" class="time">--:--</div><div id="date" class="date">---</div><div class="sync">CANVAS LINK: <span id="syncText">CONNECTING</span> <i class="dot"></i></div></div>
+  <div class="topright mono"><span id="courseCount">-- COURSES</span><br><span id="syncAge">WAITING FOR SYNC</span></div>
+</header>
+
+<section class="layout">
+<aside class="col left">
+  <section class="panel"><div class="inner">
+    <div class="ptitle"><span>Mission Queue</span><span id="activeCount" class="small mono">-- ACTIVE</span></div>
+    <div id="missionQueue"><div class="loading mono">LOADING CANVAS...</div></div>
+  </div></section>
+
+  <div class="statuses">
+    <div class="status"><div class="dia"><span>U</span></div><div><div class="sname">UNIVERSITY</div><div class="smeta mono">ACTIVE TASKS</div></div><div id="uniValue" class="sval mono">--</div></div>
+    <div class="status"><div class="dia"><span>$</span></div><div><div class="sname">MONEY</div><div class="smeta mono">BALANCE</div></div><div class="sval mono">--</div></div>
+    <div class="status"><div class="dia"><span>C</span></div><div><div class="sname">CAR</div><div class="smeta mono">STATUS</div></div><div class="sval mono">--</div></div>
+  </div>
+</aside>
+
+<section class="middle">
+  <div class="center">
+    <div class="rings"><div class="ring"></div><div class="axis"></div></div>
+    <section class="core">
+      <div class="emblem"></div>
+      <div class="kicker mono">PRIORITY OBJECTIVE</div>
+      <div id="focusTitle" class="focus">SYNCING</div>
+      <div id="focusCourse" class="course">Retrieving live Canvas assignments</div>
+      <div class="details mono">
+        <span>DUE <strong id="focusDue">--</strong></span>
+        <span>POINTS <strong id="focusPoints">--</strong></span>
+        <span>STATE <strong id="focusState">--</strong></span>
       </div>
-
-      <div class="clock mono">
-        <div id="clockTime" class="clock-time">--:--</div>
-        <div id="clockDate" class="clock-date">---</div>
-        <div class="sync">SYSTEM SYNC: ONLINE <i></i></div>
+      <div class="actions">
+        <button id="engageBtn" class="btn primary">Engage</button>
+        <a id="canvasBtn" class="btn" target="_blank" rel="noopener" aria-disabled="true">Open Canvas</a>
+        <button id="breakBtn" class="btn">Break Down</button>
       </div>
-
-      <div class="top-status mono">
-        <span>NET</span>
-        <span>SYS</span>
-        <span>87%</span>
+      <div id="breakdown" class="breakdown">
+        <div class="breakdown-title mono">MISSION BREAKDOWN</div>
+        <ol>
+          <li>Open the original Canvas assignment.</li>
+          <li>Read the full instructions and required materials.</li>
+          <li>Complete the assignment before the displayed deadline.</li>
+          <li>Review requirements, then submit through Canvas.</li>
+        </ol>
+        <div id="focusDesc" class="desc"></div>
       </div>
-    </header>
-
-    <section class="workspace">
-      <aside class="column left-col">
-        <div class="panel">
-          <div class="panel-inner">
-            <div class="panel-title">
-              <span>Mission Queue</span>
-              <small class="mono">ACTIVE</small>
-            </div>
-
-            <div class="mission-list">
-              <div class="mission">
-                <div class="diamond"><span>01</span></div>
-                <div>
-                  <div class="mission-name">Algorithm Design</div>
-                  <div class="mission-sub mono">STATUS: PENDING</div>
-                </div>
-                <div class="mission-time mono">09:30</div>
-              </div>
-
-              <div class="mission">
-                <div class="diamond"><span>02</span></div>
-                <div>
-                  <div class="mission-name">Data Structures Quiz</div>
-                  <div class="mission-sub mono">STATUS: PENDING</div>
-                </div>
-                <div class="mission-time mono">11:00</div>
-              </div>
-
-              <div class="mission">
-                <div class="diamond"><span>03</span></div>
-                <div>
-                  <div class="mission-name">Linear Algebra Lecture</div>
-                  <div class="mission-sub mono">STATUS: PENDING</div>
-                </div>
-                <div class="mission-time mono">13:30</div>
-              </div>
-
-              <div class="mission">
-                <div class="diamond"><span>04</span></div>
-                <div>
-                  <div class="mission-name">Lab Report 5</div>
-                  <div class="mission-sub mono">STATUS: PENDING</div>
-                </div>
-                <div class="mission-time mono">--:--</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="status-stack">
-          <div class="status-row">
-            <div class="diamond"><span>U</span></div>
-            <div>
-              <div class="status-label">UNIVERSITY</div>
-              <div class="status-sub mono">STATUS</div>
-            </div>
-            <div class="status-value ok mono">ON TRACK</div>
-          </div>
-
-          <div class="status-row">
-            <div class="diamond"><span>$</span></div>
-            <div>
-              <div class="status-label">MONEY</div>
-              <div class="status-sub mono">BALANCE</div>
-            </div>
-            <div class="status-value mono">--</div>
-          </div>
-
-          <div class="status-row">
-            <div class="diamond"><span>C</span></div>
-            <div>
-              <div class="status-label">CAR</div>
-              <div class="status-sub mono">FUEL</div>
-            </div>
-            <div class="status-value mono">--</div>
-          </div>
-        </div>
-      </aside>
-
-      <section class="center-col">
-        <div class="core-wrap">
-          <div class="core-art">
-            <div class="ring"></div>
-            <div class="axis"></div>
-            <div class="axis-h"></div>
-          </div>
-
-          <div class="core">
-            <div class="core-emblem"></div>
-            <div class="core-kicker mono">PRIORITY OBJECTIVE</div>
-            <div class="core-title">CURRENT FOCUS</div>
-            <div class="core-desc">Define your primary task or objective</div>
-
-            <div class="protocol mono">
-              FOCUS PROTOCOL
-              <strong>NOT SET</strong>
-            </div>
-
-            <div class="core-actions">
-              <button class="btn primary" id="engageBtn">Engage</button>
-              <button class="btn">Open Canvas</button>
-              <button class="btn">Break Down</button>
-            </div>
-          </div>
-
-          <nav class="nav" aria-label="Primary">
-            <button class="active">Dashboard</button>
-            <button>Calendar</button>
-            <button>Tasks</button>
-            <button>Notes</button>
-            <button>System</button>
-          </nav>
-        </div>
-      </section>
-
-      <aside class="column right-col">
-        <div class="panel">
-          <div class="panel-inner">
-            <div class="panel-title">
-              <span>Alerts & Upcoming</span>
-              <small class="mono danger">2 ALERTS</small>
-            </div>
-
-            <div class="alert-list">
-              <div class="alert">
-                <div class="diamond"><span>!</span></div>
-                <div>
-                  <div class="alert-name">System Update</div>
-                  <div class="alert-sub mono danger">REQUIRES ATTENTION</div>
-                </div>
-                <div class="alert-time danger mono">●</div>
-              </div>
-
-              <div class="alert">
-                <div class="diamond"><span>!</span></div>
-                <div>
-                  <div class="alert-name">Security Check</div>
-                  <div class="alert-sub mono">RECOMMENDED</div>
-                </div>
-                <div class="alert-time mono">●</div>
-              </div>
-
-              <div class="hud-line" style="margin:8px 0"></div>
-
-              <div class="alert">
-                <div class="diamond"><span>D</span></div>
-                <div>
-                  <div class="alert-name">Data Structures Quiz</div>
-                  <div class="alert-sub mono">DUE IN 11 HOURS</div>
-                </div>
-                <div class="alert-time mono">●</div>
-              </div>
-
-              <div class="alert">
-                <div class="diamond"><span>D</span></div>
-                <div>
-                  <div class="alert-name">Lab Report 5</div>
-                  <div class="alert-sub mono">DUE IN 2 DAYS</div>
-                </div>
-                <div class="alert-time mono">●</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="status-stack">
-          <div class="status-row">
-            <div class="diamond"><span>E</span></div>
-            <div>
-              <div class="status-label">ENERGY</div>
-              <div class="status-sub mono">LEVEL</div>
-            </div>
-            <div class="status-value mono">--</div>
-          </div>
-
-          <div class="status-row">
-            <div class="diamond"><span>F</span></div>
-            <div>
-              <div class="status-label">FOCUS</div>
-              <div class="status-sub mono">STATE</div>
-            </div>
-            <div class="status-value mono">--</div>
-          </div>
-
-          <div class="status-row">
-            <div class="diamond"><span>S</span></div>
-            <div>
-              <div class="status-label">SYSTEM</div>
-              <div class="status-sub mono">STATUS</div>
-            </div>
-            <div class="status-value ok mono">OPTIMAL</div>
-          </div>
-        </div>
-      </aside>
     </section>
-  </main>
+    <nav class="nav"><button class="active">Dashboard</button><button>Calendar</button><button>Tasks</button><button>Notes</button><button>System</button></nav>
+  </div>
+</section>
 
-  <script>
-    const timeEl = document.getElementById("clockTime");
-    const dateEl = document.getElementById("clockDate");
-    const engageBtn = document.getElementById("engageBtn");
+<aside class="col right">
+  <section class="panel"><div class="inner">
+    <div class="ptitle"><span>Alerts & Upcoming</span><span id="alertCount" class="small mono danger">--</span></div>
+    <div id="alerts"><div class="loading mono">SCANNING...</div></div>
+  </div></section>
 
-    function updateClock(){
-      const now = new Date();
-      timeEl.textContent = now.toLocaleTimeString([], {
-        hour:"2-digit",
-        minute:"2-digit",
-        hour12:false
+  <div class="statuses">
+    <div class="status"><div class="dia"><span>E</span></div><div><div class="sname">ENERGY</div><div class="smeta mono">LEVEL</div></div><div class="sval mono">--</div></div>
+    <div class="status"><div class="dia"><span>F</span></div><div><div class="sname">FOCUS</div><div class="smeta mono">STATE</div></div><div id="focusStatus" class="sval mono">STANDBY</div></div>
+    <div class="status"><div class="dia"><span>S</span></div><div><div class="sname">SYSTEM</div><div class="smeta mono">CANVAS</div></div><div id="systemStatus" class="sval mono">SYNCING</div></div>
+  </div>
+</aside>
+</section>
+</main>
+
+<script>
+let dashboard = null;
+let current = null;
+
+const $ = id => document.getElementById(id);
+
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function updateClock(){
+  const d=new Date();
+  $("clock").textContent=d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",hour12:false});
+  $("date").textContent=d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric",year:"numeric"}).toUpperCase();
+}
+updateClock(); setInterval(updateClock,1000);
+
+function relativeDue(iso){
+  if(!iso) return "NO DEADLINE";
+  const ms=new Date(iso)-Date.now();
+  const abs=Math.abs(ms);
+  const h=Math.floor(abs/36e5);
+  if(ms<0){
+    if(h<24) return `${h}H OVERDUE`;
+    return `${Math.floor(h/24)}D OVERDUE`;
+  }
+  if(h<1) return "UNDER 1H";
+  if(h<24) return `IN ${h}H`;
+  return `IN ${Math.floor(h/24)}D`;
+}
+
+function stateLabel(a){
+  if(!a) return "--";
+  if(a.missing) return "MISSING";
+  if(a.overdue) return "OVERDUE";
+  if(a.submitted) return "SUBMITTED";
+  return "PENDING";
+}
+
+function setFocus(a){
+  current=a || null;
+  $("breakdown").classList.remove("open");
+  if(!a){
+    $("focusTitle").textContent="CLEAR";
+    $("focusCourse").textContent="No active Canvas assignments detected";
+    $("focusDue").textContent="--";
+    $("focusPoints").textContent="--";
+    $("focusState").textContent="CLEAR";
+    $("canvasBtn").removeAttribute("href");
+    $("canvasBtn").setAttribute("aria-disabled","true");
+    $("focusDesc").textContent="";
+    return;
+  }
+  $("focusTitle").textContent=a.name;
+  $("focusCourse").textContent=a.course;
+  $("focusDue").textContent=relativeDue(a.dueAt);
+  $("focusPoints").textContent=a.points ?? "--";
+  $("focusState").textContent=stateLabel(a);
+  $("focusDesc").textContent=a.description || "No assignment description was provided by Canvas.";
+  if(a.url){$("canvasBtn").href=a.url;$("canvasBtn").setAttribute("aria-disabled","false")}
+}
+
+function missionHtml(a,i){
+  const risk=a.overdue||a.missing;
+  return `<div class="item" data-id="${esc(a.id)}" data-course="${esc(a.courseId)}">
+    <div class="dia"><span>${String(i+1).padStart(2,"0")}</span></div>
+    <div><div class="iname">${esc(a.name)}</div><div class="imeta mono">${esc(a.course)} · ${esc(stateLabel(a))}</div></div>
+    <div class="iright mono ${risk?"danger":""}">${esc(relativeDue(a.dueAt))}</div>
+  </div>`;
+}
+
+function alertHtml(a){
+  const risk=a.overdue||a.missing;
+  return `<div class="item">
+    <div class="dia"><span>${risk?"!":"D"}</span></div>
+    <div><div class="iname">${esc(a.name)}</div><div class="imeta mono">${esc(a.course)}</div></div>
+    <div class="iright mono ${risk?"danger":""}">${esc(relativeDue(a.dueAt))}</div>
+  </div>`;
+}
+
+async function loadCanvas(){
+  try{
+    const r=await fetch("/api/canvas",{cache:"no-store"});
+    const data=await r.json();
+    if(!r.ok || !data.ok) throw new Error(data.details||data.error||"Canvas sync failed");
+    dashboard=data;
+
+    $("syncText").textContent="ONLINE";
+    $("systemStatus").textContent="ONLINE";
+    $("systemStatus").classList.add("ok");
+    $("courseCount").textContent=`${data.stats.courses} COURSES`;
+    $("activeCount").textContent=`${data.stats.active} ACTIVE`;
+    $("uniValue").textContent=data.stats.active;
+    $("alertCount").textContent=`${data.stats.overdue} RISK`;
+    $("syncAge").textContent="LIVE DATA";
+
+    const missions=data.active.slice(0,6);
+    $("missionQueue").innerHTML=missions.length?missions.map(missionHtml).join(""):`<div class="small mono">NO ACTIVE MISSIONS</div>`;
+
+    const alerts=[...data.overdue,...data.dueSoon.filter(x=>!data.overdue.some(o=>o.id===x.id && o.courseId===x.courseId))]
+      .slice(0,6);
+    $("alerts").innerHTML=alerts.length?alerts.map(alertHtml).join(""):`<div class="small mono ok">NO IMMEDIATE DEADLINE RISKS</div>`;
+
+    setFocus(data.next);
+
+    document.querySelectorAll("#missionQueue .item").forEach(el=>{
+      el.style.cursor="pointer";
+      el.addEventListener("click",()=>{
+        const found=data.assignments.find(a=>String(a.id)===el.dataset.id && String(a.courseId)===el.dataset.course);
+        if(found){setFocus(found);window.scrollTo({top:0,behavior:"smooth"})}
       });
-      dateEl.textContent = now.toLocaleDateString([], {
-        weekday:"short",
-        month:"short",
-        day:"numeric",
-        year:"numeric"
-      }).toUpperCase();
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    engageBtn.addEventListener("click", () => {
-      engageBtn.textContent = "Objective Active";
-      engageBtn.disabled = true;
-      engageBtn.style.opacity = ".7";
     });
+  }catch(err){
+    $("syncText").textContent="ERROR";
+    $("systemStatus").textContent="ERROR";
+    $("systemStatus").classList.add("danger");
+    $("focusTitle").textContent="SYNC FAILURE";
+    $("focusCourse").textContent=err.message;
+    $("missionQueue").innerHTML=`<div class="small mono danger">${esc(err.message)}</div>`;
+    $("alerts").innerHTML=`<div class="small mono danger">CHECK /api/canvas AND VERCEL ENVIRONMENT VARIABLES</div>`;
+  }
+}
 
-    document.querySelectorAll(".nav button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      });
-    });
-  </script>
+$("engageBtn").addEventListener("click",()=>{
+  $("focusStatus").textContent="ENGAGED";
+  $("engageBtn").textContent="OBJECTIVE ACTIVE";
+});
+
+$("breakBtn").addEventListener("click",()=>{
+  $("breakdown").classList.toggle("open");
+});
+
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+}));
+
+loadCanvas();
+setInterval(loadCanvas,5*60*1000);
+</script>
 </body>
 </html>
