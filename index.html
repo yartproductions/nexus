@@ -139,6 +139,67 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   letter-spacing:.08em;
 }
 
+
+.daily-strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:10px;
+}
+.daily-stat{
+  border:1px solid rgba(255,157,36,.16);
+  background:rgba(255,157,36,.025);
+  padding:9px;
+}
+.daily-stat-label{
+  font-size:7px;
+  color:var(--muted);
+  letter-spacing:.08em;
+}
+.daily-stat-value{
+  margin-top:4px;
+  font-size:11px;
+  color:var(--orange);
+}
+.overload{
+  margin-top:8px;
+  padding:8px;
+  border:1px solid rgba(255,71,46,.28);
+  color:var(--red);
+  font-size:8px;
+  display:none;
+}
+.overload.show{display:block}
+.plan-item{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:11px 0;
+  border-top:1px solid rgba(255,157,36,.08);
+}
+.plan-item:first-child{border-top:0}
+.plan-actions{
+  display:flex;
+  gap:5px;
+  margin-top:5px;
+  flex-wrap:wrap;
+}
+.mini-btn{
+  border:1px solid rgba(255,157,36,.25);
+  background:transparent;
+  color:var(--orange);
+  padding:4px 6px;
+  font-size:7px;
+  cursor:pointer;
+}
+.mini-btn.danger{border-color:rgba(255,71,46,.25)}
+.plan-done .iname{
+  text-decoration:line-through;
+  opacity:.5;
+}
+.plan-done .imeta{opacity:.45}
+
 @media(max-width:1050px){.layout{grid-template-columns:245px minmax(380px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:650px}}
 @media(max-width:760px){
 .app{padding:13px 13px 84px}.top{grid-template-columns:1fr auto;min-height:118px}.clock{grid-column:1/-1;grid-row:2}.time{font-size:24px}.logo{font-size:17px}.topright{font-size:8px}
@@ -164,6 +225,37 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
 
 <section class="layout">
 <aside class="col left">
+  <section class="panel"><div class="inner">
+    <div class="ptitle"><span>Daily Command</span><span id="dayStatus" class="small mono">PLANNING</span></div>
+
+    <div class="daily-strip">
+      <div class="daily-stat">
+        <div class="daily-stat-label mono">MISSIONS</div>
+        <div id="todayMissionCount" class="daily-stat-value mono">--</div>
+      </div>
+      <div class="daily-stat">
+        <div class="daily-stat-label mono">WORKLOAD</div>
+        <div id="todayWorkload" class="daily-stat-value mono">--</div>
+      </div>
+      <div class="daily-stat">
+        <div class="daily-stat-label mono">DONE</div>
+        <div id="todayDone" class="daily-stat-value mono">--</div>
+      </div>
+      <div class="daily-stat">
+        <div class="daily-stat-label mono">CAPACITY</div>
+        <div id="todayCapacity" class="daily-stat-value mono">5</div>
+      </div>
+    </div>
+
+    <div id="overloadWarning" class="overload mono">
+      DAY LOAD EXCEEDS RECOMMENDED CAPACITY
+    </div>
+
+    <div id="dailyPlan">
+      <div class="loading mono">BUILDING DAILY PLAN...</div>
+    </div>
+  </div></section>
+
   <section class="panel"><div class="inner">
     <div class="ptitle"><span>Mission Queue</span><span id="activeCount" class="small mono">-- ACTIVE</span></div>
     <div class="queue-tabs">
@@ -329,13 +421,134 @@ function renderQueue(){
   document.querySelectorAll("#missionQueue .item").forEach(el=>{el.addEventListener("click",e=>{if(e.target.closest("a"))return;const found=dashboard.assignments.find(a=>String(a.id)===el.dataset.id&&String(a.courseId)===el.dataset.course);if(found){setFocus(found);window.scrollTo({top:0,behavior:"smooth"})}})})
 }
 
+
+const DAILY_LIMIT = 5;
+const DAILY_OVERLOAD_MINUTES = 240;
+
+function dailyKey(){
+  const d=new Date();
+  return `nexus_daily_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function getDailyState(){
+  try{
+    return JSON.parse(localStorage.getItem(dailyKey()) || '{"done":[],"deferred":[]}');
+  }catch{
+    return {done:[],deferred:[]};
+  }
+}
+
+function saveDailyState(state){
+  localStorage.setItem(dailyKey(), JSON.stringify(state));
+}
+
+function taskKey(a){
+  return `${a.courseId}:${a.id}`;
+}
+
+function buildDailyPlan(){
+  if(!dashboard) return [];
+
+  const state=getDailyState();
+  const deferred=new Set(state.deferred || []);
+
+  const candidates=(dashboard.actionable || [])
+    .filter(a=>!deferred.has(taskKey(a)))
+    .sort((a,b)=>b.priority-a.priority);
+
+  // Prefer due today first, then this week, then other actionable tasks.
+  const dueToday=candidates.filter(a=>(dashboard.today||[]).some(t=>taskKey(t)===taskKey(a)));
+  const dueWeek=candidates.filter(a=>(dashboard.thisWeek||[]).some(t=>taskKey(t)===taskKey(a)));
+  const rest=candidates.filter(a=>!dueToday.includes(a)&&!dueWeek.includes(a));
+
+  return [...dueToday,...dueWeek,...rest].slice(0,DAILY_LIMIT);
+}
+
+function renderDailyPlan(){
+  const plan=buildDailyPlan();
+  const state=getDailyState();
+  const done=new Set(state.done || []);
+
+  const totalMinutes=plan.reduce((sum,a)=>sum+(Number(a.estimatedMinutes)||0),0);
+  const completed=plan.filter(a=>done.has(taskKey(a))).length;
+
+  $("todayMissionCount").textContent=plan.length;
+  $("todayWorkload").textContent=formatMin(totalMinutes);
+  $("todayDone").textContent=`${completed}/${plan.length}`;
+  $("dayStatus").textContent=plan.length ? "ACTIVE" : "CLEAR";
+
+  const overload=totalMinutes>DAILY_OVERLOAD_MINUTES;
+  $("overloadWarning").classList.toggle("show", overload);
+
+  if(!plan.length){
+    $("dailyPlan").innerHTML=`<div class="small mono ok">NO DAILY MISSIONS REQUIRED</div>`;
+    return;
+  }
+
+  $("dailyPlan").innerHTML=plan.map((a,i)=>{
+    const isDone=done.has(taskKey(a));
+    return `<div class="plan-item ${isDone?"plan-done":""}" data-daily-id="${esc(a.id)}" data-daily-course="${esc(a.courseId)}">
+      <div class="dia"><span>${String(i+1).padStart(2,"0")}</span></div>
+      <div>
+        <div class="iname">${esc(a.name)}</div>
+        <div class="imeta mono">${esc(a.course)} · ${esc(formatMin(a.estimatedMinutes))} · ${esc(relDue(a.dueAt))}</div>
+        <div class="plan-actions">
+          <button class="mini-btn daily-focus">FOCUS</button>
+          <button class="mini-btn daily-done">${isDone?"UNDO":"DONE"}</button>
+          <button class="mini-btn danger daily-defer">DEFER</button>
+        </div>
+      </div>
+      <div class="iright mono">${isDone?"DONE":"PENDING"}</div>
+    </div>`;
+  }).join("");
+
+  document.querySelectorAll(".plan-item").forEach(el=>{
+    const a=dashboard.assignments.find(x=>String(x.id)===el.dataset.dailyId&&String(x.courseId)===el.dataset.dailyCourse);
+    if(!a) return;
+
+    el.querySelector(".daily-focus").addEventListener("click",()=>{
+      setFocus(a);
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+
+    el.querySelector(".daily-done").addEventListener("click",()=>{
+      const s=getDailyState();
+      const key=taskKey(a);
+      s.done=s.done || [];
+      if(s.done.includes(key)) s.done=s.done.filter(x=>x!==key);
+      else s.done.push(key);
+      saveDailyState(s);
+      renderDailyPlan();
+
+      const next=buildDailyPlan().find(x=>!(getDailyState().done||[]).includes(taskKey(x)));
+      if(next) setFocus(next);
+    });
+
+    el.querySelector(".daily-defer").addEventListener("click",()=>{
+      const s=getDailyState();
+      const key=taskKey(a);
+      s.deferred=s.deferred || [];
+      if(!s.deferred.includes(key)) s.deferred.push(key);
+      saveDailyState(s);
+      renderDailyPlan();
+
+      const next=buildDailyPlan().find(x=>!(getDailyState().done||[]).includes(taskKey(x)));
+      if(next) setFocus(next);
+    });
+  });
+
+  // Keep the center objective aligned to the next unfinished daily mission.
+  const next=plan.find(a=>!done.has(taskKey(a)));
+  if(next) setFocus(next);
+}
+
 async function loadCanvas(){
   $("syncBtn").textContent="SYNCING";
   try{
     const r=await fetch("/api/canvas",{cache:"no-store",headers:{Accept:"application/json"}});
     const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{throw new Error(`API returned non-JSON (${r.status})`)}
     if(!r.ok||!data.ok)throw new Error(data.details||data.error||`Canvas returned ${r.status}`);
-    dashboard=data;$("syncText").textContent="ONLINE";$("systemStatus").textContent="ONLINE";$("systemStatus").className="sval mono ok";$("courseCount").textContent=`${data.stats.courses} COURSES`;$("activeCount").textContent=`${data.stats.actionable} ACTIVE`;$("uniValue").textContent=data.stats.actionable;$("alertCount").textContent=`${data.stats.overdue} RISK`;$("syncAge").textContent=`SYNC ${new Date(data.syncedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`;renderQueue();
+    dashboard=data;$("syncText").textContent="ONLINE";$("systemStatus").textContent="ONLINE";$("systemStatus").className="sval mono ok";$("courseCount").textContent=`${data.stats.courses} COURSES`;$("activeCount").textContent=`${data.stats.actionable} ACTIVE`;$("uniValue").textContent=data.stats.actionable;$("alertCount").textContent=`${data.stats.overdue} RISK`;$("syncAge").textContent=`SYNC ${new Date(data.syncedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`;renderQueue();renderDailyPlan();
     const alerts=[...(data.overdue||[]),...(data.dueSoon||[]).filter(x=>!(data.overdue||[]).some(o=>o.id===x.id&&o.courseId===x.courseId))].slice(0,6);
     $("alerts").innerHTML=alerts.length?alerts.map(itemHtml).join(""):`<div class="small mono ok">NO IMMEDIATE DEADLINE RISKS</div>`;setFocus(data.next);
   }catch(err){$("syncText").textContent="ERROR";$("systemStatus").textContent="ERROR";$("systemStatus").className="sval mono danger";$("focusTitle").textContent="SYNC FAILURE";$("focusCourse").textContent=err.message;$("missionQueue").innerHTML=`<div class="small mono danger">${esc(err.message)}</div>`;$("alerts").innerHTML=`<div class="small mono danger">CHECK /api/canvas</div>`}

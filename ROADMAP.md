@@ -20,13 +20,16 @@
 - [ ] Exam study-plan generator
 
 ## Priority 2 — Daily Command System
-- [ ] Auto-build daily mission plan
-- [ ] Cap daily primary missions
-- [ ] Daily workload total
-- [ ] Overload warning
-- [ ] Reschedule / defer mission
-- [ ] End-of-day reset
+- [x] Auto-build daily mission plan
+- [x] Cap daily primary missions at 5
+- [x] Daily workload total
+- [x] Overload warning
+- [x] Defer mission
+- [x] Local completion tracking
+- [x] Auto-promote next unfinished mission to center objective
+- [ ] End-of-day reset screen
 - [ ] Weekly review
+- [ ] User-adjustable daily capacity
 
 ## Priority 3 — Schedule / Calendar
 - [x] Basic chronological Canvas calendar view
@@ -40,8 +43,8 @@
 ## Priority 4 — Task Intelligence
 - [x] Basic breakdown from Canvas description
 - [ ] AI-powered instruction simplification
-- [ ] Word-count / reply / upload requirement extraction improvements
-- [ ] “What exactly do I do?” one-line summary
+- [ ] Better requirement extraction
+- [ ] One-line "What exactly do I do?" summary
 - [ ] User feedback on breakdown quality
 - [ ] Learn realistic completion times
 
@@ -51,17 +54,17 @@
 - [x] Offline shell cache
 - [ ] Push notifications
 - [ ] Deadline reminders
-- [ ] Better one-thumb mobile controls
+- [ ] Better one-thumb controls
 - [ ] Background sync
 
 ## Priority 6 — Media Dock
 - [x] Neon-orange Media Dock
-- [x] YouTube video embed
-- [x] Paste-and-load YouTube URL
-- [x] Remember last loaded stream locally
-- [ ] Playlist support
-- [ ] Compact/collapse mode
-- [ ] Track metadata display
+- [x] Real YouTube playlist loading
+- [x] Real titles + durations
+- [x] Click-to-play track list
+- [ ] Playlist artwork
+- [ ] Previous / next controls
+- [ ] Compact mode
 - [ ] YouTube Music deep-link handling
 
 ## Priority 7 — Personal Life Modules
@@ -79,17 +82,17 @@
 ## Priority 8 — NEXUS Intelligence
 - [ ] Unified priority engine across school + life
 - [ ] Conflict detection
-- [ ] “What can safely wait?”
+- [ ] "What can safely wait?"
 - [ ] Natural-language command bar
 - [ ] Trend analysis
-- [ ] Habit / procrastination pattern detection
+- [ ] Habit / procrastination detection
 - [ ] Weekly and semester analytics
 
 ## Priority 9 — Visual Polish
-- [ ] More refined central NEXUS core art
-- [ ] Smooth HUD motion
+- [ ] Refined central NEXUS art
+- [ ] HUD motion
 - [ ] Sync animations
-- [ ] Proper icon set
+- [ ] Icon set
 - [ ] Optional sounds
-- [ ] Alert severity language
-- [ ] Consistent desktop/mobile visual grammar
+- [ ] Alert severity system
+- [ ] Desktop/mobile consistency

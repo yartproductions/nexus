@@ -1,34 +1,33 @@
-NEXUS REAL PLAYLIST FIX
+NEXUS v3 — DAILY COMMAND SYSTEM
 
-WHAT CHANGED
-------------
-The previous version used a fake local playlist array. This version loads a real
-YouTube playlist and renders its actual tracks.
+This build keeps the working Canvas + YouTube playlist integrations and adds the
+next roadmap item: Priority 2 — Daily Command System.
 
-FILES
------
+NEW
+---
+- Automatically selects up to 5 daily missions
+- Prefers today, then this week, then highest-priority actionable tasks
+- Shows total estimated workload
+- Warns above 4 hours of planned work
+- DONE / UNDO tracking
+- DEFER button
+- FOCUS button
+- Automatically moves the next unfinished daily mission into the center objective
+- Daily completion/defer state is stored locally and resets naturally by date
+
+DEPLOY
+------
+Replace/add these in your GitHub repo root:
 index.html
+ROADMAP.md
+api/canvas.js
 api/youtube-playlist.js
+manifest.json
+sw.js
+icon-192.png
+icon-512.png
 
-VERCEL ENVIRONMENT VARIABLE
----------------------------
-Create:
+Keep your existing Vercel environment variables:
+CANVAS_URL
+CANVAS_TOKEN
 YOUTUBE_API_KEY
-
-This should be a YouTube Data API v3 key from Google Cloud.
-
-Then redeploy Vercel.
-
-HOW TO USE
-----------
-1. Open NEXUS.
-2. Paste a normal YouTube playlist URL in Media Dock.
-3. Click LOAD PLAYLIST.
-4. NEXUS fetches real playlist titles + durations.
-5. Click any track to play that exact video.
-
-NOTE
-----
-Some YouTube videos disable embedding. Those individual tracks may still refuse
-to play inside an iframe even though they appear in the playlist. That is a
-YouTube/video-owner restriction, not a NEXUS bug.
