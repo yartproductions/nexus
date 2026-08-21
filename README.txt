@@ -1,29 +1,34 @@
-NEXUS v2 — Deploy Instructions
+NEXUS REAL PLAYLIST FIX
 
-1. Unzip this package.
-2. Replace/add these files in the ROOT of your GitHub repo:
-   index.html
-   manifest.json
-   sw.js
-   icon-192.png
-   icon-512.png
-   ROADMAP.md
-   api/canvas.js
+WHAT CHANGED
+------------
+The previous version used a fake local playlist array. This version loads a real
+YouTube playlist and renders its actual tracks.
 
-3. Commit to GitHub.
-4. Let Vercel redeploy automatically.
-5. Keep these Vercel Environment Variables:
-   CANVAS_URL
-   CANVAS_TOKEN
+FILES
+-----
+index.html
+api/youtube-playlist.js
 
-6. Test backend:
-   https://YOUR-VERCEL-DOMAIN.vercel.app/api/canvas
+VERCEL ENVIRONMENT VARIABLE
+---------------------------
+Create:
+YOUTUBE_API_KEY
 
-7. Open the Vercel root URL.
+This should be a YouTube Data API v3 key from Google Cloud.
 
-Important:
-- Use the Vercel URL as the real NEXUS app.
-- GitHub is the code repository.
-- Do not commit CANVAS_TOKEN anywhere.
-- The Media Dock accepts normal YouTube video URLs.
-- YouTube Music itself does not provide the same simple embeddable player surface, so this build embeds YouTube video URLs and can deep-link to YouTube Music later.
+Then redeploy Vercel.
+
+HOW TO USE
+----------
+1. Open NEXUS.
+2. Paste a normal YouTube playlist URL in Media Dock.
+3. Click LOAD PLAYLIST.
+4. NEXUS fetches real playlist titles + durations.
+5. Click any track to play that exact video.
+
+NOTE
+----
+Some YouTube videos disable embedding. Those individual tracks may still refuse
+to play inside an iframe even though they appear in the playlist. That is a
+YouTube/video-owner restriction, not a NEXUS bug.

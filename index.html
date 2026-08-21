@@ -225,13 +225,20 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   </div></section>
 
   <section class="panel"><div class="inner">
-    <div class="ptitle"><span>Media Dock</span><span class="small mono">PLAYLIST CHANNEL</span></div>
+    <div class="ptitle"><span>Media Dock</span><span class="small mono">YOUTUBE PLAYLIST</span></div>
     <div class="media">
       <div class="media-screen">
-        <iframe id="mediaFrame" src="https://www.youtube.com/embed/jfKfPfyJRdk" title="NEXUS Media Dock" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        <iframe
+          id="mediaFrame"
+          src=""
+          title="NEXUS Media Dock"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+
         <div class="media-overlay">
           <div class="media-now mono">NOW PLAYING // YOUTUBE</div>
-          <div id="mediaTitle" class="media-title">Focus Stream</div>
+          <div id="mediaTitle" class="media-title">NO TRACK LOADED</div>
           <div id="mediaArtist" class="small mono">NEXUS MEDIA</div>
           <div class="wave"><i></i><i></i><i></i><i></i><i></i></div>
         </div>
@@ -240,17 +247,28 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
       <div class="media-toolbar">
         <div>
           <div class="small mono">PLAYLIST</div>
-          <div id="playlistCount" class="media-count mono">0 TRACKS</div>
+          <div id="playlistCount" class="media-count mono">NO PLAYLIST LOADED</div>
         </div>
+
         <button id="togglePlaylistBtn" class="btn">COLLAPSE</button>
       </div>
 
-      <div id="mediaPlaylist" class="media-playlist"></div>
+      <div id="mediaPlaylist" class="media-playlist">
+        <div class="small mono" style="padding:12px">
+          PASTE A YOUTUBE PLAYLIST URL BELOW
+        </div>
+      </div>
 
       <div class="media-row">
-        <input id="mediaUrl" class="media-input mono" placeholder="Paste YouTube video URL">
-        <button id="loadMediaBtn" class="btn">LOAD</button>
+        <input
+          id="playlistUrl"
+          class="media-input mono"
+          placeholder="Paste YouTube playlist URL"
+        >
+        <button id="loadPlaylistBtn" class="btn">LOAD PLAYLIST</button>
       </div>
+
+      <div id="mediaError" class="small mono danger"></div>
     </div>
   </div></section>
 
@@ -328,105 +346,137 @@ document.querySelectorAll(".qtab").forEach(b=>b.addEventListener("click",()=>{do
 $("engageBtn").addEventListener("click",()=>{$("focusStatus").textContent="ENGAGED";$("engageBtn").textContent="OBJECTIVE ACTIVE"});
 $("breakBtn").addEventListener("click",()=>{$("breakdown").classList.toggle("open")});
 
-function youtubeId(url){
+function youtubePlaylistId(url){
   try{
-    const u=new URL(url);
-    if(u.hostname.includes("youtu.be"))return u.pathname.slice(1).split("/")[0];
-    if(u.searchParams.get("v"))return u.searchParams.get("v");
-    const parts=u.pathname.split("/");
-    const idx=parts.findIndex(x=>["embed","shorts","live"].includes(x));
-    if(idx>=0&&parts[idx+1])return parts[idx+1];
-  }catch{}
-  return null;
+    const u = new URL(url);
+    return u.searchParams.get("list");
+  }catch{
+    return null;
+  }
 }
 
-const defaultPlaylist = [
-  {
-    title:"Focus Stream",
-    artist:"NEXUS MEDIA",
-    duration:"LIVE",
-    youtubeId:"jfKfPfyJRdk"
-  },
-  {
-    title:"Night Drive",
-    artist:"Custom Slot",
-    duration:"--:--",
-    youtubeId:"5qap5aO4i9A"
-  },
-  {
-    title:"Deep Work",
-    artist:"Custom Slot",
-    duration:"--:--",
-    youtubeId:"DWcJFNfaw9c"
-  }
-];
-
-let mediaPlaylist = JSON.parse(localStorage.getItem("nexus_playlist") || "null") || defaultPlaylist;
-let activeTrackIndex = Number(localStorage.getItem("nexus_active_track") || 0);
+let mediaPlaylist = [];
+let activeTrackIndex = -1;
 let playlistCollapsed = false;
 
 function renderPlaylist(){
-  $("playlistCount").textContent = `${mediaPlaylist.length} TRACK${mediaPlaylist.length===1?"":"S"}`;
+  if(!mediaPlaylist.length){
+    $("playlistCount").textContent = "0 TRACKS";
+    $("mediaPlaylist").innerHTML =
+      `<div class="small mono" style="padding:12px">NO TRACKS LOADED</div>`;
+    return;
+  }
+
+  $("playlistCount").textContent =
+    `${mediaPlaylist.length} TRACK${mediaPlaylist.length===1?"":"S"}`;
+
   $("mediaPlaylist").innerHTML = mediaPlaylist.map((t,i)=>`
     <div class="track ${i===activeTrackIndex?"active":""}" data-track="${i}">
       <div class="track-num mono">${String(i+1).padStart(2,"0")}</div>
-      <div class="track-name">${esc(t.title)}</div>
+
+      <div>
+        <div class="track-name">${esc(t.title)}</div>
+        <div class="small mono">${esc(t.channelTitle || "YOUTUBE")}</div>
+      </div>
+
       <div class="track-duration mono">${esc(t.duration || "--:--")}</div>
     </div>
   `).join("");
 
   document.querySelectorAll(".track").forEach(el=>{
-    el.addEventListener("click",()=>playTrack(Number(el.dataset.track)));
+    el.addEventListener("click",()=>{
+      playTrack(Number(el.dataset.track));
+    });
   });
 }
 
 function playTrack(index){
   const track = mediaPlaylist[index];
-  if(!track) return;
+  if(!track || !track.videoId) return;
 
   activeTrackIndex = index;
-  $("mediaFrame").src = `https://www.youtube.com/embed/${encodeURIComponent(track.youtubeId)}?autoplay=1`;
-  $("mediaTitle").textContent = track.title;
-  $("mediaArtist").textContent = track.artist || "YOUTUBE";
+
+  $("mediaFrame").src =
+    `https://www.youtube.com/embed/${encodeURIComponent(track.videoId)}?autoplay=1&rel=0`;
+
+  $("mediaTitle").textContent = track.title || "UNTITLED";
+  $("mediaArtist").textContent = track.channelTitle || "YOUTUBE";
+
   localStorage.setItem("nexus_active_track", String(index));
-  localStorage.setItem("nexus_media_id", track.youtubeId);
   renderPlaylist();
 }
 
-$("loadMediaBtn").addEventListener("click",()=>{
-  const url = $("mediaUrl").value.trim();
-  const id = youtubeId(url);
-  if(!id) return alert("Paste a normal YouTube video link.");
+async function loadPlaylistFromUrl(url){
+  $("mediaError").textContent = "";
 
-  const customTrack = {
-    title:"Custom Track",
-    artist:"YouTube",
-    duration:"--:--",
-    youtubeId:id
-  };
+  const listId = youtubePlaylistId(url);
 
-  const existing = mediaPlaylist.findIndex(t=>t.youtubeId===id);
-
-  if(existing >= 0){
-    playTrack(existing);
-  }else{
-    mediaPlaylist.push(customTrack);
-    localStorage.setItem("nexus_playlist", JSON.stringify(mediaPlaylist));
-    playTrack(mediaPlaylist.length - 1);
+  if(!listId){
+    $("mediaError").textContent =
+      "That does not look like a valid YouTube playlist URL.";
+    return;
   }
 
-  $("mediaUrl").value = "";
+  $("loadPlaylistBtn").textContent = "LOADING...";
+  $("loadPlaylistBtn").disabled = true;
+
+  try{
+    const r = await fetch(
+      `/api/youtube-playlist?list=${encodeURIComponent(listId)}`,
+      { cache:"no-store" }
+    );
+
+    const data = await r.json();
+
+    if(!r.ok || !data.ok){
+      throw new Error(data.error || data.details || "Playlist request failed");
+    }
+
+    mediaPlaylist = data.tracks || [];
+    activeTrackIndex = 0;
+
+    localStorage.setItem("nexus_playlist_id", listId);
+    localStorage.setItem("nexus_playlist_url", url);
+
+    renderPlaylist();
+
+    if(mediaPlaylist.length){
+      playTrack(0);
+    }
+  }catch(err){
+    $("mediaError").textContent = err.message;
+  }finally{
+    $("loadPlaylistBtn").textContent = "LOAD PLAYLIST";
+    $("loadPlaylistBtn").disabled = false;
+  }
+}
+
+$("loadPlaylistBtn").addEventListener("click",()=>{
+  const url = $("playlistUrl").value.trim();
+  loadPlaylistFromUrl(url);
+});
+
+$("playlistUrl").addEventListener("keydown",e=>{
+  if(e.key === "Enter"){
+    loadPlaylistFromUrl($("playlistUrl").value.trim());
+  }
 });
 
 $("togglePlaylistBtn").addEventListener("click",()=>{
   playlistCollapsed = !playlistCollapsed;
-  $("mediaPlaylist").style.display = playlistCollapsed ? "none" : "block";
-  $("togglePlaylistBtn").textContent = playlistCollapsed ? "EXPAND" : "COLLAPSE";
+
+  $("mediaPlaylist").style.display =
+    playlistCollapsed ? "none" : "block";
+
+  $("togglePlaylistBtn").textContent =
+    playlistCollapsed ? "EXPAND" : "COLLAPSE";
 });
 
-if(activeTrackIndex < 0 || activeTrackIndex >= mediaPlaylist.length) activeTrackIndex = 0;
-renderPlaylist();
-playTrack(activeTrackIndex);
+const savedPlaylistUrl = localStorage.getItem("nexus_playlist_url");
+if(savedPlaylistUrl){
+  $("playlistUrl").value = savedPlaylistUrl;
+  loadPlaylistFromUrl(savedPlaylistUrl);
+}
 
 const modal=$("modal"),modalTitle=$("modalTitle"),modalContent=$("modalContent");
 function openModal(title,html){modalTitle.textContent=title;modalContent.innerHTML=html;modal.classList.add("open")}
