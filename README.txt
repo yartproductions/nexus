@@ -1,58 +1,43 @@
-NEXUS v6 — MOBILE / PWA
+NEXUS v7 — MEDIA DOCK
 
-PRIORITY 5 BUILD
+Priority 6 is now implemented.
 
 NEW
 ---
-MOBILE
-- mobile-first stacking
-- larger tap targets
-- fixed bottom command navigation
-- compact mobile status strip
-- Media Dock collapsed by default on phones
+- Playlist artwork / thumbnails
+- Now-playing artwork and title
+- PREV button
+- NEXT button
+- COMPACT / EXPAND mode
+- Remember last playlist
+- Remember last selected track
+- Click any track to play it
+- Direct YT MUSIC link for the current track
+- Keeps the light-blue NEXUS HUD theme
 
-PWA
-- improved standalone manifest
-- install prompt button when supported
-- upgraded service-worker cache
-- offline shell support
+PLAYLIST
+--------
+Paste a normal YouTube playlist URL and load it.
 
-OFFLINE
-- latest successful Canvas dashboard is cached locally
-- NEXUS can show last-known mission data if Canvas cannot be reached
+The YouTube API backend returns:
+- title
+- channel
+- duration
+- thumbnail
+- video ID
 
-DEADLINE ALERTS
-- tap ALERTS and allow browser notifications
-- local checks at:
-  24 hours
-  6 hours
-  1 hour
-  before an assignment deadline
-- reminder state is stored locally to prevent duplicate spam
-
-IMPORTANT LIMITATION
---------------------
-This version does NOT yet provide true server-originated push notifications
-while the app/device is fully closed for long periods.
-
-For that, NEXUS will eventually need:
-- a small backend database
-- Web Push subscriptions
-- scheduled server checks / cron
-- Canvas polling on the server
-
-That infrastructure belongs in a later backend pass and should not be faked
-with unreliable browser-only behavior.
+YouTube Music itself is not embedded.
+The YT MUSIC button opens the corresponding track in YouTube Music when possible.
 
 DEPLOY
 ------
-Replace your repo files with these files, commit, and let Vercel redeploy.
+Replace your repo files with this build, commit, and let Vercel redeploy.
 
-Keep Vercel environment variables:
+Keep environment variables:
 CANVAS_URL
 CANVAS_TOKEN
 YOUTUBE_API_KEY
 
 NEXT ROADMAP ITEM
 -----------------
-Priority 6 — Media Dock.
+Priority 7 — Personal Life Modules.

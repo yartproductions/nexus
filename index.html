@@ -561,6 +561,134 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   }
 }
 
+
+/* PRIORITY 6 — MEDIA DOCK */
+.media-shell{
+  display:grid;
+  grid-template-columns:96px 1fr;
+  gap:12px;
+  align-items:start;
+}
+.media-art{
+  width:96px;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border:1px solid rgba(127,216,255,.22);
+  background:#071018;
+}
+.media-now{
+  min-width:0;
+}
+.media-now-title{
+  font-size:11px;
+  color:#dce9ef;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.media-now-channel{
+  margin-top:4px;
+  font-size:7px;
+  color:var(--muted);
+}
+.media-controls{
+  display:flex;
+  gap:6px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+.media-control-btn{
+  border:1px solid rgba(127,216,255,.22);
+  background:rgba(127,216,255,.025);
+  color:var(--orange);
+  min-width:38px;
+  min-height:32px;
+  padding:6px 8px;
+  font-size:8px;
+  cursor:pointer;
+}
+.media-control-btn:hover{
+  background:rgba(127,216,255,.06);
+}
+.media-track-list{
+  margin-top:10px;
+  max-height:230px;
+  overflow:auto;
+  border-top:1px solid rgba(127,216,255,.08);
+}
+.media-track{
+  display:grid;
+  grid-template-columns:28px 42px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px 2px;
+  border-bottom:1px solid rgba(127,216,255,.06);
+  cursor:pointer;
+}
+.media-track:hover{
+  background:rgba(127,216,255,.025);
+}
+.media-track.active{
+  background:rgba(127,216,255,.055);
+}
+.media-track-thumb{
+  width:42px;
+  height:42px;
+  object-fit:cover;
+  border:1px solid rgba(127,216,255,.12);
+}
+.media-track-title{
+  color:#dce9ef;
+  font-size:8px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.media-track-channel{
+  margin-top:3px;
+  font-size:6px;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.media-track-duration{
+  font-size:7px;
+  color:var(--muted);
+}
+.media-dock.compact .media-track-list,
+.media-dock.compact .playlist-loader,
+.media-dock.compact iframe,
+.media-dock.compact .media-art{
+  display:none !important;
+}
+.media-dock.compact .media-shell{
+  grid-template-columns:1fr;
+}
+.media-dock.compact{
+  max-height:none !important;
+}
+.music-deep-link{
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+}
+@media(max-width:760px){
+  .media-shell{
+    grid-template-columns:70px 1fr;
+  }
+  .media-art{
+    width:70px;
+  }
+  .media-track{
+    grid-template-columns:24px 34px 1fr auto;
+  }
+  .media-track-thumb{
+    width:34px;
+    height:34px;
+  }
+}
+
 @media(max-width:1050px){.layout{grid-template-columns:245px minmax(380px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:650px}}
 @media(max-width:760px){
 .app{padding:13px 13px 84px}.top{grid-template-columns:1fr auto;min-height:118px}.clock{grid-column:1/-1;grid-row:2}.time{font-size:24px}.logo{font-size:17px}.topright{font-size:8px}
@@ -601,156 +729,44 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
 
 <section class="layout">
 <aside class="col left">
-  <section class="panel"><div class="inner">
-    <div class="ptitle"><span>Daily Command</span><span id="dayStatus" class="small mono">PLANNING</span></div>
+  
+<section class="panel media-dock" id="mediaDock">
+  <div class="inner">
+    <div class="ptitle">
+      <span>Media Dock</span>
+      <span class="small mono" id="mediaState">IDLE</span>
+    </div>
 
-    <div class="daily-strip">
-      <div class="daily-stat">
-        <div class="daily-stat-label mono">MISSIONS</div>
-        <div id="todayMissionCount" class="daily-stat-value mono">--</div>
-      </div>
-      <div class="daily-stat">
-        <div class="daily-stat-label mono">WORKLOAD</div>
-        <div id="todayWorkload" class="daily-stat-value mono">--</div>
-      </div>
-      <div class="daily-stat">
-        <div class="daily-stat-label mono">DONE</div>
-        <div id="todayDone" class="daily-stat-value mono">--</div>
-      </div>
-      <div class="daily-stat">
-        <div class="daily-stat-label mono">CAPACITY</div>
-        <div id="todayCapacity" class="daily-stat-value mono">5</div>
+    <div class="playlist-loader">
+      <input id="playlistInput" class="schedule-input" placeholder="Paste YouTube playlist URL">
+      <div class="plan-actions">
+        <button id="loadPlaylistBtn" class="btn">LOAD PLAYLIST</button>
       </div>
     </div>
 
-    <div id="overloadWarning" class="overload mono">
-      DAY LOAD EXCEEDS RECOMMENDED CAPACITY
+    <div class="media-shell" style="margin-top:10px">
+      <img id="mediaArt" class="media-art" alt="" src="icon-192.png">
+      <div class="media-now">
+        <div id="mediaNowTitle" class="media-now-title">No track selected</div>
+        <div id="mediaNowChannel" class="media-now-channel mono">LOAD A PLAYLIST</div>
+
+        <div class="media-controls">
+          <button id="mediaPrevBtn" class="media-control-btn">PREV</button>
+          <button id="mediaNextBtn" class="media-control-btn">NEXT</button>
+          <button id="mediaCompactBtn" class="media-control-btn">COMPACT</button>
+          <a id="mediaMusicLink" class="media-control-btn music-deep-link" href="https://music.youtube.com/" target="_blank" rel="noopener">YT MUSIC</a>
+        </div>
+      </div>
     </div>
 
-    <div id="dailyPlan">
-      <div class="loading mono">BUILDING DAILY PLAN...</div>
+    <iframe id="mediaFrame" title="YouTube player" style="width:100%;height:190px;border:0;margin-top:10px" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+    <div id="mediaTrackList" class="media-track-list">
+      <div class="small mono" style="padding:10px 0">NO PLAYLIST LOADED</div>
     </div>
-  </div></section>
-
-  <section class="panel"><div class="inner">
-    <div class="ptitle"><span>Mission Queue</span><span id="activeCount" class="small mono">-- ACTIVE</span></div>
-    <div class="queue-tabs">
-      <button class="qtab active" data-scope="today">TODAY</button>
-      <button class="qtab" data-scope="week">THIS WEEK</button>
-      <button class="qtab" data-scope="later">LATER</button>
-      <button class="qtab" data-scope="locked">LOCKED</button>
-    </div>
-    <div id="missionQueue"><div class="loading mono">LOADING CANVAS...</div></div>
-  </div></section>
-
-  <div class="statuses">
-    <div class="status"><div class="dia"><span>U</span></div><div><div class="sname">UNIVERSITY</div><div class="smeta mono">ACTIONABLE</div></div><div id="uniValue" class="sval mono">--</div></div>
-    <div class="status"><div class="dia"><span>$</span></div><div><div class="sname">MONEY</div><div class="smeta mono">BALANCE</div></div><div id="moneyValue" class="sval mono">--</div></div>
-    <div class="status"><div class="dia"><span>C</span></div><div><div class="sname">CAR</div><div class="smeta mono">STATUS</div></div><div id="carValue" class="sval mono">--</div></div>
-  </div>
-</aside>
-
-<section class="middle">
-  <div class="center">
-    <div class="rings"><div class="ring"></div><div class="axis"></div></div>
-    <section class="core">
-      <div class="emblem"></div>
-      <div class="kicker mono">PRIORITY OBJECTIVE</div>
-      <div id="focusTitle" class="focus">SYNCING</div>
-      <div id="focusCourse" class="course">Retrieving live Canvas assignments</div>
-
-      <div class="mission-summary">
-        <div class="mission-summary-label mono">WHAT TO DO</div>
-        <div id="focusSummary" class="mission-summary-text">Waiting for assignment data...</div>
-        <div id="focusRequirements" class="req-grid"></div>
-      </div>
-      <div class="details mono">
-        <span>DUE <strong id="focusDue">--</strong></span>
-        <span>POINTS <strong id="focusPoints">--</strong></span>
-        <span>ETA <strong id="focusEta">--</strong></span>
-        <span>STATE <strong id="focusState">--</strong></span>
-      </div>
-      <div class="eta-editor mono">
-        <span class="small">EDIT ETA</span>
-        <input id="etaInput" class="eta-input" type="number" min="5" step="5" placeholder="MIN">
-        <button id="saveEtaBtn" class="btn">SAVE ETA</button>
-      </div>
-
-      <div class="actions">
-        <button id="engageBtn" class="btn primary">Engage</button>
-        <a id="canvasBtn" class="btn" target="_blank" rel="noopener" aria-disabled="true">Open Canvas</a>
-        <button id="breakBtn" class="btn">Break Down</button>
-      </div>
-      <div id="breakdown" class="breakdown">
-        <div class="break-title mono">MISSION BREAKDOWN</div>
-        <ol id="stepList"></ol>
-        <div id="focusDesc" class="desc"></div>
-      </div>
-    </section>
-
-    <nav class="nav">
-      <button class="active" data-view="dashboard">Dashboard</button>
-      <button data-view="calendar">Calendar</button>
-      <button data-view="tasks">Tasks</button>
-      <button data-view="notes">Notes</button>
-      <button data-view="system">System</button>
-    </nav>
   </div>
 </section>
 
-<aside class="col right">
-  <section class="panel"><div class="inner">
-    <div class="ptitle"><span>Alerts & Upcoming</span><span id="alertCount" class="small mono danger">--</span></div>
-    <div id="alerts"><div class="loading mono">SCANNING...</div></div>
-  </div></section>
-
-  <section class="panel"><div class="inner">
-    <div class="ptitle"><span>Media Dock</span><span class="small mono">YOUTUBE PLAYLIST</span></div>
-    <div class="media">
-      <div class="media-screen">
-        <iframe
-          id="mediaFrame"
-          src=""
-          title="NEXUS Media Dock"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowfullscreen
-        ></iframe>
-
-        <div class="media-overlay">
-          <div class="media-now mono">NOW PLAYING // YOUTUBE</div>
-          <div id="mediaTitle" class="media-title">NO TRACK LOADED</div>
-          <div id="mediaArtist" class="small mono">NEXUS MEDIA</div>
-          <div class="wave"><i></i><i></i><i></i><i></i><i></i></div>
-        </div>
-      </div>
-
-      <div class="media-toolbar">
-        <div>
-          <div class="small mono">PLAYLIST</div>
-          <div id="playlistCount" class="media-count mono">NO PLAYLIST LOADED</div>
-        </div>
-
-        <button id="togglePlaylistBtn" class="btn">COLLAPSE</button>
-      </div>
-
-      <div id="mediaPlaylist" class="media-playlist">
-        <div class="small mono" style="padding:12px">
-          PASTE A YOUTUBE PLAYLIST URL BELOW
-        </div>
-      </div>
-
-      <div class="media-row">
-        <input
-          id="playlistUrl"
-          class="media-input mono"
-          placeholder="Paste YouTube playlist URL"
-        >
-        <button id="loadPlaylistBtn" class="btn">LOAD PLAYLIST</button>
-      </div>
-
-      <div id="mediaError" class="small mono danger"></div>
-    </div>
-  </div></section>
 
   <div class="statuses">
     <div class="status"><div class="dia"><span>E</span></div><div><div class="sname">ENERGY</div><div class="smeta mono">LEVEL</div></div><div id="energyValue" class="sval mono">--</div></div>
@@ -1153,6 +1169,150 @@ if($("installBtn")){
 
 setInterval(checkDeadlineReminders, 15*60*1000);
 window.addEventListener("resize",collapseMediaOnMobile);
+
+
+let nexusPlaylist = [];
+let nexusTrackIndex = -1;
+
+function extractPlaylistId(value){
+  const raw=String(value||"").trim();
+  if(!raw) return "";
+  try{
+    const u=new URL(raw);
+    return u.searchParams.get("list") || "";
+  }catch{
+    return raw;
+  }
+}
+
+function mediaTrackThumb(track){
+  return track.thumbnail || track.thumbnailUrl || track.thumbnails?.medium?.url || track.thumbnails?.default?.url || "icon-192.png";
+}
+
+function mediaMusicUrl(track){
+  if(track?.videoId) return `https://music.youtube.com/watch?v=${encodeURIComponent(track.videoId)}`;
+  return "https://music.youtube.com/";
+}
+
+function renderMediaTracks(){
+  const list=$("mediaTrackList");
+  if(!list) return;
+
+  if(!nexusPlaylist.length){
+    list.innerHTML='<div class="small mono" style="padding:10px 0">NO PLAYLIST LOADED</div>';
+    return;
+  }
+
+  list.innerHTML=nexusPlaylist.map((t,i)=>`
+    <div class="media-track ${i===nexusTrackIndex?"active":""}" data-media-index="${i}">
+      <div class="mono small">${String(i+1).padStart(2,"0")}</div>
+      <img class="media-track-thumb" src="${esc(mediaTrackThumb(t))}" alt="">
+      <div style="min-width:0">
+        <div class="media-track-title">${esc(t.title||"Untitled")}</div>
+        <div class="media-track-channel mono">${esc(t.channelTitle||t.channel||"YouTube")}</div>
+      </div>
+      <div class="media-track-duration mono">${esc(t.duration||"--")}</div>
+    </div>
+  `).join("");
+
+  document.querySelectorAll(".media-track").forEach(el=>{
+    el.addEventListener("click",()=>playNexusTrack(Number(el.dataset.mediaIndex)));
+  });
+}
+
+function playNexusTrack(index){
+  if(!nexusPlaylist.length) return;
+
+  if(index<0) index=nexusPlaylist.length-1;
+  if(index>=nexusPlaylist.length) index=0;
+
+  nexusTrackIndex=index;
+  const t=nexusPlaylist[index];
+
+  if($("mediaFrame") && t.videoId){
+    $("mediaFrame").src=`https://www.youtube.com/embed/${encodeURIComponent(t.videoId)}?autoplay=1&rel=0`;
+  }
+  if($("mediaNowTitle")) $("mediaNowTitle").textContent=t.title||"Untitled";
+  if($("mediaNowChannel")) $("mediaNowChannel").textContent=t.channelTitle||t.channel||"YouTube";
+  if($("mediaArt")) $("mediaArt").src=mediaTrackThumb(t);
+  if($("mediaMusicLink")) $("mediaMusicLink").href=mediaMusicUrl(t);
+  if($("mediaState")) $("mediaState").textContent=`TRACK ${index+1}/${nexusPlaylist.length}`;
+
+  localStorage.setItem("nexus_media_track_index",String(index));
+  renderMediaTracks();
+}
+
+async function loadNexusPlaylist(){
+  const value=$("playlistInput")?.value||"";
+  const listId=extractPlaylistId(value);
+  if(!listId) return;
+
+  if($("mediaState")) $("mediaState").textContent="LOADING";
+
+  try{
+    const r=await fetch(`/api/youtube-playlist?list=${encodeURIComponent(listId)}`,{cache:"no-store"});
+    const data=await r.json();
+
+    const items=data.tracks || data.items || data.playlist || [];
+    if(!r.ok || !Array.isArray(items) || !items.length){
+      throw new Error(data.error || "Playlist could not be loaded");
+    }
+
+    nexusPlaylist=items;
+    localStorage.setItem("nexus_playlist_url",value);
+    localStorage.setItem("nexus_playlist_data",JSON.stringify(items));
+
+    const savedIndex=Math.min(
+      Number(localStorage.getItem("nexus_media_track_index")||0),
+      items.length-1
+    );
+
+    renderMediaTracks();
+    playNexusTrack(Number.isFinite(savedIndex)?savedIndex:0);
+  }catch(err){
+    if($("mediaState")) $("mediaState").textContent="ERROR";
+    if($("mediaTrackList")) $("mediaTrackList").innerHTML=
+      `<div class="small mono" style="padding:10px 0">PLAYLIST LOAD FAILED</div>`;
+  }
+}
+
+function restoreNexusMedia(){
+  try{
+    const url=localStorage.getItem("nexus_playlist_url")||"";
+    const data=JSON.parse(localStorage.getItem("nexus_playlist_data")||"[]");
+    if($("playlistInput")) $("playlistInput").value=url;
+
+    if(Array.isArray(data) && data.length){
+      nexusPlaylist=data;
+      const idx=Math.min(
+        Number(localStorage.getItem("nexus_media_track_index")||0),
+        data.length-1
+      );
+      renderMediaTracks();
+      playNexusTrack(Number.isFinite(idx)?idx:0);
+    }
+  }catch{}
+}
+
+if($("loadPlaylistBtn")) $("loadPlaylistBtn").addEventListener("click",loadNexusPlaylist);
+if($("mediaPrevBtn")) $("mediaPrevBtn").addEventListener("click",()=>playNexusTrack(nexusTrackIndex-1));
+if($("mediaNextBtn")) $("mediaNextBtn").addEventListener("click",()=>playNexusTrack(nexusTrackIndex+1));
+if($("mediaCompactBtn")){
+  $("mediaCompactBtn").addEventListener("click",()=>{
+    const dock=$("mediaDock");
+    if(!dock) return;
+    dock.classList.toggle("compact");
+    $("mediaCompactBtn").textContent=dock.classList.contains("compact")?"EXPAND":"COMPACT";
+    localStorage.setItem("nexus_media_compact",dock.classList.contains("compact")?"1":"0");
+  });
+}
+
+if(localStorage.getItem("nexus_media_compact")==="1" && $("mediaDock")){
+  $("mediaDock").classList.add("compact");
+  if($("mediaCompactBtn")) $("mediaCompactBtn").textContent="EXPAND";
+}
+
+restoreNexusMedia();
 
 $("syncBtn").addEventListener("click",loadCanvas);
 document.querySelectorAll(".qtab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".qtab").forEach(x=>x.classList.remove("active"));b.classList.add("active");currentScope=b.dataset.scope;renderQueue()}));
