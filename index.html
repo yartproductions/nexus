@@ -319,6 +319,54 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   .calendar-summary{grid-template-columns:repeat(2,1fr)}
 }
 
+
+.mission-summary{
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px solid rgba(127,216,255,.18);
+  background:rgba(127,216,255,.025);
+  text-align:left;
+}
+.mission-summary-label{
+  font-size:7px;
+  color:var(--muted);
+  letter-spacing:.1em;
+}
+.mission-summary-text{
+  margin-top:5px;
+  font-size:11px;
+  color:#dce9ef;
+  line-height:1.45;
+}
+.eta-editor{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  margin-top:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.eta-input{
+  width:68px;
+  background:#061017;
+  color:var(--text);
+  border:1px solid rgba(127,216,255,.24);
+  padding:7px;
+  font-size:8px;
+}
+.req-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:9px;
+}
+.req-chip{
+  border:1px solid rgba(127,216,255,.16);
+  color:var(--muted);
+  padding:5px 7px;
+  font-size:7px;
+}
+
 @media(max-width:1050px){.layout{grid-template-columns:245px minmax(380px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:650px}}
 @media(max-width:760px){
 .app{padding:13px 13px 84px}.top{grid-template-columns:1fr auto;min-height:118px}.clock{grid-column:1/-1;grid-row:2}.time{font-size:24px}.logo{font-size:17px}.topright{font-size:8px}
@@ -401,12 +449,24 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
       <div class="kicker mono">PRIORITY OBJECTIVE</div>
       <div id="focusTitle" class="focus">SYNCING</div>
       <div id="focusCourse" class="course">Retrieving live Canvas assignments</div>
+
+      <div class="mission-summary">
+        <div class="mission-summary-label mono">WHAT TO DO</div>
+        <div id="focusSummary" class="mission-summary-text">Waiting for assignment data...</div>
+        <div id="focusRequirements" class="req-grid"></div>
+      </div>
       <div class="details mono">
         <span>DUE <strong id="focusDue">--</strong></span>
         <span>POINTS <strong id="focusPoints">--</strong></span>
         <span>ETA <strong id="focusEta">--</strong></span>
         <span>STATE <strong id="focusState">--</strong></span>
       </div>
+      <div class="eta-editor mono">
+        <span class="small">EDIT ETA</span>
+        <input id="etaInput" class="eta-input" type="number" min="5" step="5" placeholder="MIN">
+        <button id="saveEtaBtn" class="btn">SAVE ETA</button>
+      </div>
+
       <div class="actions">
         <button id="engageBtn" class="btn primary">Engage</button>
         <a id="canvasBtn" class="btn" target="_blank" rel="noopener" aria-disabled="true">Open Canvas</a>
@@ -511,10 +571,34 @@ function relDue(iso){if(!iso)return"NO DEADLINE";const ms=new Date(iso)-Date.now
 function state(a){if(!a)return"--";if(a.missing)return"MISSING";if(a.overdue)return"OVERDUE";if(a.submitted)return"SUBMITTED";if(a.locked)return"LOCKED";return"PENDING"}
 function formatMin(m){if(!m)return"--";if(m<60)return`${m}M`;const h=Math.floor(m/60),r=m%60;return r?`${h}H ${r}M`:`${h}H`}
 
+
+function etaOverrideKey(a){
+  return a ? `nexus_eta_${a.courseId}_${a.id}` : "";
+}
+
+function effectiveEta(a){
+  if(!a) return null;
+  const saved = Number(localStorage.getItem(etaOverrideKey(a)));
+  return saved > 0 ? saved : a.estimatedMinutes;
+}
+
+function requirementChips(a){
+  const r=a?.requirements || {};
+  const chips=[];
+  if(r.wordCount) chips.push(r.wordCount);
+  if(r.replies) chips.push(`${r.replies} replies`);
+  if(r.upload) chips.push("file upload");
+  if(r.onPaper) chips.push("in person");
+  if(r.quiz) chips.push("quiz");
+  if(r.exam) chips.push("exam");
+  if(r.reading) chips.push("reading");
+  return chips;
+}
+
 function setFocus(a){
   current=a||null;$("breakdown").classList.remove("open");
-  if(!a){$("focusTitle").textContent="CLEAR";$("focusCourse").textContent="No actionable Canvas assignments";$("focusDue").textContent="--";$("focusPoints").textContent="--";$("focusEta").textContent="--";$("focusState").textContent="CLEAR";$("canvasBtn").removeAttribute("href");$("canvasBtn").setAttribute("aria-disabled","true");$("stepList").innerHTML="";$("focusDesc").textContent="";return}
-  $("focusTitle").textContent=a.name;$("focusCourse").textContent=a.courseName||a.course;$("focusDue").textContent=relDue(a.dueAt);$("focusPoints").textContent=a.points??"--";$("focusEta").textContent=formatMin(a.estimatedMinutes);$("focusState").textContent=state(a);$("focusDesc").textContent=a.description||"No assignment description provided by Canvas.";$("stepList").innerHTML=(a.steps||[]).map(s=>`<li>${esc(s)}</li>`).join("");
+  if(!a){$("focusTitle").textContent="CLEAR";$("focusCourse").textContent="No actionable Canvas assignments";$("focusSummary").textContent="Nothing urgent right now.";$("focusRequirements").innerHTML="";$("focusDue").textContent="--";$("focusPoints").textContent="--";$("focusEta").textContent="--";$("focusState").textContent="CLEAR";$("canvasBtn").removeAttribute("href");$("canvasBtn").setAttribute("aria-disabled","true");$("stepList").innerHTML="";$("focusDesc").textContent="";return}
+  $("focusTitle").textContent=a.name;$("focusCourse").textContent=a.courseName||a.course;$("focusSummary").textContent=a.summary||"Complete the assignment and submit it.";$("focusRequirements").innerHTML=requirementChips(a).map(x=>`<span class="req-chip mono">${esc(x)}</span>`).join("");$("focusDue").textContent=relDue(a.dueAt);$("focusPoints").textContent=a.points??"--";$("focusEta").textContent=formatMin(effectiveEta(a));$("etaInput").value=effectiveEta(a)||"";$("focusState").textContent=state(a);$("focusDesc").textContent=a.description||"No assignment description provided by Canvas.";$("stepList").innerHTML=(a.steps||[]).map(s=>`<li>${esc(s)}</li>`).join("");
   if(a.url){$("canvasBtn").href=a.url;$("canvasBtn").setAttribute("aria-disabled","false")}else{$("canvasBtn").removeAttribute("href");$("canvasBtn").setAttribute("aria-disabled","true")}
 }
 
@@ -523,7 +607,7 @@ function itemHtml(a,i){
   const right=a.locked?(a.unlockAt?`UNLOCK ${relDue(a.unlockAt).replace("IN ","")}`:"LOCKED"):relDue(a.dueAt);
   return `<div class="item selectable" data-id="${esc(a.id)}" data-course="${esc(a.courseId)}">
     <div class="dia"><span>${String(i+1).padStart(2,"0")}</span></div>
-    <div><div class="iname">${esc(a.name)}</div><div class="imeta mono">${esc(a.course)} · ${esc(state(a))} · ${esc(formatMin(a.estimatedMinutes))}</div>${a.url?`<a class="openmini mono" target="_blank" rel="noopener" href="${esc(a.url)}">OPEN CANVAS ↗</a>`:""}</div>
+    <div><div class="iname">${esc(a.name)}</div><div class="imeta mono">${esc(a.course)} · ${esc(state(a))} · ${esc(formatMin(effectiveEta(a)))}</div>${a.url?`<a class="openmini mono" target="_blank" rel="noopener" href="${esc(a.url)}">OPEN CANVAS ↗</a>`:""}</div>
     <div class="iright mono ${risk?"danger":""}">${esc(right)}</div>
   </div>`;
 }
@@ -673,6 +757,17 @@ async function loadCanvas(){
   }catch(err){$("syncText").textContent="ERROR";$("systemStatus").textContent="ERROR";$("systemStatus").className="sval mono danger";$("focusTitle").textContent="SYNC FAILURE";$("focusCourse").textContent=err.message;$("missionQueue").innerHTML=`<div class="small mono danger">${esc(err.message)}</div>`;$("alerts").innerHTML=`<div class="small mono danger">CHECK /api/canvas</div>`}
   finally{$("syncBtn").textContent="SYNC"}
 }
+
+$("saveEtaBtn").addEventListener("click",()=>{
+  if(!current) return;
+  const minutes = Number($("etaInput").value);
+  if(!Number.isFinite(minutes) || minutes < 5) return;
+  localStorage.setItem(etaOverrideKey(current), String(Math.round(minutes)));
+  $("focusEta").textContent = formatMin(Math.round(minutes));
+  renderQueue();
+  if(typeof renderDailyPlan === "function") renderDailyPlan();
+});
+
 $("syncBtn").addEventListener("click",loadCanvas);
 document.querySelectorAll(".qtab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".qtab").forEach(x=>x.classList.remove("active"));b.classList.add("active");currentScope=b.dataset.scope;renderQueue()}));
 $("engageBtn").addEventListener("click",()=>{$("focusStatus").textContent="ENGAGED";$("engageBtn").textContent="OBJECTIVE ACTIVE"});

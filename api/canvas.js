@@ -87,85 +87,130 @@ function sameLocalDay(a, b) {
     && a.getDate() === b.getDate();
 }
 
-function estimateMinutes(a, description) {
+
+function extractRequirements(a, description) {
+  const lower = String(description || "").toLowerCase();
   const name = String(a.name || "").toLowerCase();
   const types = a.submission_types || [];
 
-  if (name.includes("exam") || name.includes("midterm") || name.includes("final")) return 90;
-  if (name.includes("quiz")) return 30;
-  if (name.includes("essay") || name.includes("paper")) return 120;
-  if (name.includes("discussion") || name.includes("response")) return 45;
-  if (name.includes("reading") || name.includes("readings")) return 40;
-  if (name.includes("lab")) return 75;
-  if (types.includes("on_paper")) return 60;
+  const req = {
+    wordCount: null,
+    replies: null,
+    upload: types.includes("online_upload"),
+    textEntry: types.includes("online_text_entry"),
+    onPaper: types.includes("on_paper"),
+    reading: name.includes("reading") || lower.includes("read chapter") || lower.includes("read the "),
+    quiz: name.includes("quiz"),
+    exam: name.includes("exam") || name.includes("midterm") || name.includes("final"),
+    discussion: name.includes("discussion") || lower.includes("discussion"),
+  };
 
-  const wordMatch = description.match(/(\d{3,4})\s*[-–to]*\s*(\d{3,4})?\s*words?/i);
-  if (wordMatch) {
-    const words = Number(wordMatch[2] || wordMatch[1]);
-    return Math.max(30, Math.round(words / 10));
+  const wordRange = description.match(/(\d{2,4})\s*[-–]\s*(\d{2,4})\s*words?/i);
+  const wordSingle = description.match(/(?:at least|minimum of|minimum)?\s*(\d{2,4})\s*words?/i);
+
+  if (wordRange) {
+    req.wordCount = `${wordRange[1]}–${wordRange[2]} words`;
+  } else if (wordSingle) {
+    req.wordCount = `${wordSingle[1]} words`;
+  }
+
+  const replyNumeric = description.match(/(?:reply|respond)\s+(?:to\s+)?(\d+)\s+(?:classmates?|peers?|students?|posts?)/i);
+  const replyWord = description.match(/(?:reply|respond)\s+(?:to\s+)?(two|three|four|five)\s+(?:classmates?|peers?|students?|posts?)/i);
+
+  if (replyNumeric) req.replies = replyNumeric[1];
+  if (replyWord) {
+    const map = { two: 2, three: 3, four: 4, five: 5 };
+    req.replies = map[replyWord[1].toLowerCase()] || null;
+  }
+
+  return req;
+}
+
+function estimateMinutes(a, description, req) {
+  const name = String(a.name || "").toLowerCase();
+
+  if (req.exam) return 90;
+  if (req.quiz) return 30;
+  if (name.includes("essay") || name.includes("paper")) return 120;
+  if (req.discussion) return req.replies ? 45 + (req.replies * 10) : 45;
+  if (name.includes("response")) return 45;
+  if (req.reading) return 40;
+  if (name.includes("lab")) return 75;
+  if (req.onPaper) return 60;
+
+  if (req.wordCount) {
+    const nums = req.wordCount.match(/\d+/g)?.map(Number) || [];
+    const words = nums.length ? Math.max(...nums) : 0;
+    if (words >= 1500) return 150;
+    if (words >= 1000) return 120;
+    if (words >= 750) return 90;
+    if (words >= 500) return 60;
+    if (words >= 250) return 40;
   }
 
   return 45;
 }
 
-function makeSteps(a, description) {
-  const steps = [];
-  const lower = description.toLowerCase();
-  const types = a.submission_types || [];
+function makeSummary(a, req) {
   const name = String(a.name || "").toLowerCase();
 
-  if (name.includes("reading") || lower.includes("read chapter") || lower.includes("read the")) {
-    steps.push("Complete the assigned reading or source material.");
-  }
+  if (req.exam) return "Study the required material and complete the exam.";
+  if (req.quiz) return "Review the assigned material and complete the quiz.";
+  if (req.reading && !req.textEntry && !req.upload) return "Complete the assigned reading.";
+  if (req.onPaper) return "Complete this assignment in person / on paper.";
+  if (req.discussion && req.wordCount && req.replies) return `Write ${req.wordCount} and reply to ${req.replies} classmates.`;
+  if (req.discussion && req.replies) return `Write the discussion response and reply to ${req.replies} classmates.`;
+  if (req.wordCount && req.upload) return `Write ${req.wordCount}, prepare the file, and upload it.`;
+  if (req.wordCount) return `Write ${req.wordCount} and submit it.`;
+  if (req.upload) return "Complete the assignment and upload the required file.";
+  if (req.textEntry) return "Write the required response and submit it in Canvas.";
+  if (name.includes("essay") || name.includes("paper")) return "Write the paper, review it, and submit it.";
+  if (name.includes("response")) return "Write the response and submit it.";
+  return "Open the assignment, complete the required work, and submit it.";
+}
 
-  const wordMatch = description.match(/(\d{3,4})(?:\s*[-–]\s*(\d{3,4}))?\s*words?/i);
-  if (wordMatch) {
-    const range = wordMatch[2] ? `${wordMatch[1]}–${wordMatch[2]} words` : `${wordMatch[1]} words`;
-    steps.push(`Draft the required response (${range}).`);
+function makeSteps(a, description, req) {
+  const steps = [];
+
+  if (req.reading) steps.push("Complete the assigned reading.");
+
+  if (req.quiz) {
+    steps.push("Review the required material.");
+    steps.push("Take the quiz.");
+  } else if (req.exam) {
+    steps.push("Review the exam material.");
+    steps.push("Complete the exam.");
+  } else if (req.wordCount) {
+    steps.push(`Write ${req.wordCount}.`);
   } else if (
-    types.includes("online_text_entry") ||
-    name.includes("essay") ||
-    name.includes("response") ||
-    name.includes("discussion")
+    req.textEntry ||
+    req.discussion ||
+    String(a.name || "").toLowerCase().includes("response")
   ) {
-    steps.push("Draft the written response.");
+    steps.push("Write the required response.");
   }
 
-  const replyMatch = description.match(/(?:reply|respond)\s+(?:to\s+)?(\d+|two|three|four)\s+(?:classmates?|peers?|students?)/i);
-  if (replyMatch) {
-    steps.push(`Complete the required peer replies (${replyMatch[1]}).`);
-  } else if (lower.includes("reply to") || lower.includes("respond to your classmates")) {
-    steps.push("Complete the required peer replies.");
-  }
+  if (req.replies) steps.push(`Reply to ${req.replies} classmates.`);
+  if (req.upload) steps.push("Upload the required file.");
+  if (req.onPaper) steps.push("Complete it in person / on paper.");
 
-  if (types.includes("online_upload")) {
-    steps.push("Prepare and upload the required file.");
-  }
-
-  if (types.includes("on_paper")) {
-    steps.push("Complete this assignment in person / on paper as instructed.");
-  }
-
-  if (name.includes("quiz")) {
-    steps.push("Review the relevant material, then take the quiz.");
-  }
-
-  if (name.includes("exam") || name.includes("midterm") || name.includes("final")) {
-    steps.push("Review the exam scope and prepare the required material.");
+  if (
+    !req.onPaper &&
+    !req.quiz &&
+    !req.exam &&
+    !req.upload &&
+    (req.textEntry || req.wordCount || req.discussion)
+  ) {
+    steps.push("Submit it in Canvas.");
   }
 
   if (steps.length === 0) {
-    steps.push("Open the assignment and review the full instructions.");
+    steps.push("Open the assignment.");
     steps.push("Complete the required work.");
-  } else {
-    steps.unshift("Open the Canvas assignment and confirm the requirements.");
+    if (!req.onPaper) steps.push("Submit it in Canvas.");
   }
 
-  if (!types.includes("on_paper") && !types.includes("not_graded")) {
-    steps.push("Review your work and submit it through Canvas.");
-  }
-
-  return [...new Set(steps)].slice(0, 6);
+  return [...new Set(steps)].slice(0, 5);
 }
 
 function priorityScore(a, nowMs) {
@@ -211,7 +256,8 @@ function normalizeAssignment(a, course, nowMs) {
   const unlock = a.unlock_at ? new Date(a.unlock_at) : null;
   const lockedByDate = Boolean(unlock && unlock.getTime() > nowMs);
   const locked = Boolean(a.locked_for_user || lockedByDate);
-  const estimatedMinutes = estimateMinutes(a, description);
+  const requirements = extractRequirements(a, description);
+  const estimatedMinutes = estimateMinutes(a, description, requirements);
 
   const item = {
     id: a.id,
@@ -236,7 +282,9 @@ function normalizeAssignment(a, course, nowMs) {
     locked,
     overdue: Boolean(due && due.getTime() < nowMs && !submitted),
     estimatedMinutes,
-    steps: makeSteps(a, description),
+    summary: makeSummary(a, requirements),
+    requirements,
+    steps: makeSteps(a, description, requirements),
   };
 
   item.priority = priorityScore(item, nowMs);

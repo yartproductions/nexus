@@ -13,7 +13,7 @@
 - [x] Manual Canvas sync
 - [x] Assignment ETA heuristic
 - [x] Rule-based mission breakdown
-- [ ] User-adjustable ETA
+- [x] User-adjustable ETA
 - [ ] Better course-name cleanup
 - [ ] Grade weighting from Canvas assignment groups
 - [ ] Course-grade risk engine
@@ -46,12 +46,17 @@
 - [ ] Drag/drop timeline editing
 
 ## Priority 4 — Task Intelligence
-- [x] Basic breakdown from Canvas description
-- [ ] AI-powered instruction simplification
-- [ ] Better requirement extraction
-- [ ] One-line "What exactly do I do?" summary
-- [ ] User feedback on breakdown quality
-- [ ] Learn realistic completion times
+- [x] Concrete one-line "What to do" summary
+- [x] Word-count detection
+- [x] Reply-count detection
+- [x] File-upload detection
+- [x] Reading detection
+- [x] Quiz/exam detection
+- [x] In-person/on-paper detection
+- [x] Cleaner mission steps
+- [x] Editable ETA
+- [ ] Improve edge cases as real Canvas assignments appear
+- [ ] Learn realistic completion times later
 
 ## Priority 5 — Mobile / PWA
 - [x] Installable PWA base
@@ -63,7 +68,7 @@
 - [ ] Background sync
 
 ## Priority 6 — Media Dock
-- [x] Neon-orange Media Dock
+- [x] Light-blue Media Dock theme
 - [x] Real YouTube playlist loading
 - [x] Real titles + durations
 - [x] Click-to-play track list

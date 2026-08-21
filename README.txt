@@ -1,48 +1,40 @@
-NEXUS v4 — SCHEDULE / CALENDAR
+NEXUS v5 — TASK INTELLIGENCE
 
-This build continues the roadmap with Priority 3.
+Priority 4 is implemented with short, concrete summaries.
 
 NEW
 ---
-- Full Schedule view inside Calendar
-- Create fixed blocks for:
-  Class
-  Work
-  Commute
-  Personal events
-- Assign blocks to recurring weekdays
-- Daily vertical timeline
-- Saved schedule blocks persist locally
-- NEXUS automatically places unfinished daily missions into open time windows
-- Free-time calculation
-- Delete/edit by removing/recreating blocks for now
+WHAT TO DO
+A one-line instruction such as:
+"Write 500 words and reply to 2 classmates."
 
-HOW TO USE
-----------
-Open NEXUS -> Calendar.
-Add a title, block type, start/end time, and optional days:
-mon,tue,wed,thu,fri,sat,sun
+REQUIREMENTS
+NEXUS detects:
+- word counts
+- required replies
+- readings
+- uploads
+- quizzes
+- exams
+- in-person/on-paper work
 
-Example:
-CS 240 Lecture
-Class
-10:00 - 11:15
-mon,wed
+BREAK DOWN
+Short steps only.
+
+ETA
+You can override NEXUS's estimated minutes.
+Your custom ETA is stored locally for that assignment.
 
 DEPLOY
 ------
-Replace the files in your GitHub repo with this build, commit, and let Vercel redeploy.
+Replace your repo files with this build and commit.
+Vercel will redeploy.
 
 Keep:
 CANVAS_URL
 CANVAS_TOKEN
 YOUTUBE_API_KEY
 
-NEXT ROADMAP ITEM
------------------
-Priority 4 — Task Intelligence.
-
-
-COLOR UPDATE
-------------
-Main accent changed from neon orange to a restrained light-blue/cyan HUD palette. Red remains reserved for warnings and critical states.
+NEXT
+----
+Priority 5 — Mobile / PWA.
