@@ -218,8 +218,10 @@ function alertHtml(a){
 
 async function loadCanvas(){
   try{
-    const r=await fetch("/api/canvas",{cache:"no-store"});
-    const data=await r.json();
+const r=await fetch(
+  "https://nexus-smoky-ten-79.vercel.app/api/canvas",
+  { cache: "no-store" }
+);    const data=await r.json();
     if(!r.ok || !data.ok) throw new Error(data.details||data.error||"Canvas sync failed");
     dashboard=data;
 
