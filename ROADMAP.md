@@ -79,16 +79,18 @@
 - [x] YouTube Music deep-link handling
 
 ## Priority 7 — Personal Life Modules
-- [ ] Money dashboard
-- [ ] Safe-to-spend
-- [ ] Bills
-- [ ] Savings targets
-- [ ] Car / fuel / maintenance
-- [ ] Work
-- [ ] Gym / fitness
-- [ ] Food
-- [ ] Prayer / routine
-- [ ] Appointments / errands
+- [x] Money dashboard
+- [x] Safe-to-spend
+- [x] Bills
+- [x] Savings targets
+- [x] Car / fuel / maintenance
+- [x] Work
+- [x] Gym / fitness
+- [x] Food
+- [x] Prayer / routine
+- [x] Appointments / errands
+- [x] Persistent local storage
+- [ ] Cross-device cloud sync later
 
 ## Priority 8 — NEXUS Intelligence
 - [ ] Unified priority engine across school + life

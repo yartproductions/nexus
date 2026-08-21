@@ -142,7 +142,7 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
 
 .daily-strip{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:8px;
   margin-bottom:10px;
 }
@@ -616,6 +616,116 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   .media-art{width:56px;height:56px}
 }
 
+
+/* PRIORITY 7 — PERSONAL LIFE MODULES */
+.life-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.life-card{
+  border:1px solid rgba(127,216,255,.16);
+  background:rgba(127,216,255,.02);
+  padding:11px;
+}
+.life-card h3{
+  margin:0 0 8px;
+  color:var(--orange);
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:.08em;
+}
+.life-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:7px;
+}
+.life-field label{
+  display:block;
+  margin-bottom:4px;
+  font-size:7px;
+  color:var(--muted);
+}
+.life-input,.life-select,.life-textarea{
+  width:100%;
+  box-sizing:border-box;
+  background:#061017;
+  color:var(--text);
+  border:1px solid rgba(127,216,255,.18);
+  padding:8px;
+  font-size:8px;
+}
+.life-textarea{
+  min-height:72px;
+  resize:vertical;
+}
+.life-metric{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:6px 0;
+  border-top:1px solid rgba(127,216,255,.07);
+  font-size:8px;
+}
+.life-metric:first-of-type{border-top:0}
+.life-metric strong{
+  color:#dce9ef;
+  font-weight:500;
+}
+.life-status{
+  margin-top:8px;
+  padding:7px 8px;
+  border:1px solid rgba(127,216,255,.13);
+  color:var(--muted);
+  font-size:7px;
+}
+.life-status.good{color:#8bd47f;border-color:rgba(139,212,127,.22)}
+.life-status.warn{color:var(--red);border-color:rgba(255,71,46,.22)}
+.life-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.life-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-top:8px;
+}
+.life-item{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:7px 8px;
+  border:1px solid rgba(127,216,255,.1);
+}
+.life-item-title{
+  font-size:8px;
+  color:#dce9ef;
+}
+.life-item-meta{
+  margin-top:2px;
+  font-size:7px;
+  color:var(--muted);
+}
+.life-summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:10px;
+}
+.life-summary .calendar-chip{
+  min-width:0;
+}
+@media(max-width:760px){
+  .life-grid{grid-template-columns:1fr}
+  .life-summary{grid-template-columns:repeat(2,1fr)}
+  .life-row{grid-template-columns:1fr}
+}
+
 @media(max-width:1050px){.layout{grid-template-columns:245px minmax(380px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:650px}}
 @media(max-width:760px){
 .app{padding:13px 13px 84px}.top{grid-template-columns:1fr auto;min-height:118px}.clock{grid-column:1/-1;grid-row:2}.time{font-size:24px}.logo{font-size:17px}.topright{font-size:8px}
@@ -748,7 +858,7 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
       <button data-view="calendar">Calendar</button>
       <button data-view="tasks">Tasks</button>
       <button data-view="notes">Notes</button>
-      <button data-view="system">System</button>
+      <button class="navbtn" data-view="life">LIFE</button><button data-view="system">System</button>
     </nav>
   </div>
 </section>
@@ -1619,6 +1729,229 @@ function attachScheduleHandlers(){
   });
 }
 
+
+function lifeKey(){ return "nexus_life_v1"; }
+
+function defaultLife(){
+  return {
+    money:{balance:0,bills:0,savings:0,target:0},
+    car:{fuel:0,miles:0,nextService:"",note:""},
+    work:{nextShift:"",hoursWeek:0,note:""},
+    gym:{sessionsWeek:0,targetSessions:4,weight:"",note:""},
+    food:{mealsToday:0,targetMeals:3,note:""},
+    prayer:{completed:0,target:5,note:""},
+    errands:[]
+  };
+}
+
+function getLife(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(lifeKey())||"null");
+    return Object.assign(defaultLife(),saved||{});
+  }catch{
+    return defaultLife();
+  }
+}
+
+function saveLife(data){
+  localStorage.setItem(lifeKey(),JSON.stringify(data));
+}
+
+function moneySafeToSpend(l){
+  return Math.max(0,Number(l.money.balance||0)-Number(l.money.bills||0)-Number(l.money.savings||0));
+}
+
+function lifeWorkspaceHtml(){
+  const l=getLife();
+  const safe=moneySafeToSpend(l);
+  const gymPct=Math.min(100,Math.round((Number(l.gym.sessionsWeek||0)/Math.max(1,Number(l.gym.targetSessions||4)))*100));
+  const foodPct=Math.min(100,Math.round((Number(l.food.mealsToday||0)/Math.max(1,Number(l.food.targetMeals||3)))*100));
+  const prayerPct=Math.min(100,Math.round((Number(l.prayer.completed||0)/Math.max(1,Number(l.prayer.target||5)))*100));
+
+  const errands=(l.errands||[]).map((e,i)=>`
+    <div class="life-item">
+      <div>
+        <div class="life-item-title">${esc(e.title)}</div>
+        <div class="life-item-meta mono">${esc(e.when||"NO DATE")} · ${esc(e.type||"ERRAND")}</div>
+      </div>
+      <button class="mini-btn danger life-delete-errand" data-index="${i}">REMOVE</button>
+    </div>`).join("");
+
+  return `
+  <div class="life-summary">
+    <div class="calendar-chip"><div class="small mono">SAFE TO SPEND</div><div class="v mono">$${safe.toFixed(2)}</div></div>
+    <div class="calendar-chip"><div class="small mono">GYM</div><div class="v mono">${gymPct}%</div></div>
+    <div class="calendar-chip"><div class="small mono">MEALS</div><div class="v mono">${foodPct}%</div></div>
+    <div class="calendar-chip"><div class="small mono">PRAYER</div><div class="v mono">${prayerPct}%</div></div>
+  </div>
+
+  <div class="life-grid">
+    <section class="life-card">
+      <h3 class="mono">MONEY</h3>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">CURRENT BALANCE</label><input id="lifeBalance" class="life-input" type="number" step="0.01" value="${Number(l.money.balance||0)}"></div>
+        <div class="life-field"><label class="mono">UPCOMING BILLS</label><input id="lifeBills" class="life-input" type="number" step="0.01" value="${Number(l.money.bills||0)}"></div>
+      </div>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">PROTECTED SAVINGS</label><input id="lifeSavings" class="life-input" type="number" step="0.01" value="${Number(l.money.savings||0)}"></div>
+        <div class="life-field"><label class="mono">SAVINGS TARGET</label><input id="lifeSavingsTarget" class="life-input" type="number" step="0.01" value="${Number(l.money.target||0)}"></div>
+      </div>
+      <div class="life-metric"><span>Safe to spend</span><strong>$${safe.toFixed(2)}</strong></div>
+      <div class="life-actions"><button id="saveMoney" class="btn">SAVE MONEY DATA</button></div>
+    </section>
+
+    <section class="life-card">
+      <h3 class="mono">CAR</h3>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">FUEL %</label><input id="lifeFuel" class="life-input" type="number" min="0" max="100" value="${Number(l.car.fuel||0)}"></div>
+        <div class="life-field"><label class="mono">ODOMETER</label><input id="lifeMiles" class="life-input" type="number" value="${Number(l.car.miles||0)}"></div>
+      </div>
+      <div class="life-field" style="margin-top:7px"><label class="mono">NEXT SERVICE</label><input id="lifeService" class="life-input" value="${esc(l.car.nextService||"")}"></div>
+      <div class="life-field" style="margin-top:7px"><label class="mono">NOTE</label><textarea id="lifeCarNote" class="life-textarea">${esc(l.car.note||"")}</textarea></div>
+      <div class="life-actions"><button id="saveCar" class="btn">SAVE CAR DATA</button></div>
+    </section>
+
+    <section class="life-card">
+      <h3 class="mono">WORK</h3>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">NEXT SHIFT</label><input id="lifeNextShift" class="life-input" placeholder="Fri 8:30–19:00" value="${esc(l.work.nextShift||"")}"></div>
+        <div class="life-field"><label class="mono">HOURS THIS WEEK</label><input id="lifeHours" class="life-input" type="number" step="0.5" value="${Number(l.work.hoursWeek||0)}"></div>
+      </div>
+      <div class="life-field" style="margin-top:7px"><label class="mono">WORK NOTE</label><textarea id="lifeWorkNote" class="life-textarea">${esc(l.work.note||"")}</textarea></div>
+      <div class="life-actions"><button id="saveWork" class="btn">SAVE WORK DATA</button></div>
+    </section>
+
+    <section class="life-card">
+      <h3 class="mono">GYM / BODY</h3>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">SESSIONS THIS WEEK</label><input id="lifeGymSessions" class="life-input" type="number" value="${Number(l.gym.sessionsWeek||0)}"></div>
+        <div class="life-field"><label class="mono">WEEKLY TARGET</label><input id="lifeGymTarget" class="life-input" type="number" value="${Number(l.gym.targetSessions||4)}"></div>
+      </div>
+      <div class="life-field" style="margin-top:7px"><label class="mono">WEIGHT</label><input id="lifeWeight" class="life-input" placeholder="lbs" value="${esc(l.gym.weight||"")}"></div>
+      <div class="life-field" style="margin-top:7px"><label class="mono">NOTE</label><textarea id="lifeGymNote" class="life-textarea">${esc(l.gym.note||"")}</textarea></div>
+      <div class="life-status ${gymPct>=100?"good":""} mono">WEEKLY PROGRESS // ${gymPct}%</div>
+      <div class="life-actions"><button id="saveGym" class="btn">SAVE GYM DATA</button></div>
+    </section>
+
+    <section class="life-card">
+      <h3 class="mono">FOOD</h3>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">MEALS TODAY</label><input id="lifeMeals" class="life-input" type="number" value="${Number(l.food.mealsToday||0)}"></div>
+        <div class="life-field"><label class="mono">DAILY TARGET</label><input id="lifeMealTarget" class="life-input" type="number" value="${Number(l.food.targetMeals||3)}"></div>
+      </div>
+      <div class="life-field" style="margin-top:7px"><label class="mono">FOOD NOTE</label><textarea id="lifeFoodNote" class="life-textarea">${esc(l.food.note||"")}</textarea></div>
+      <div class="life-status ${foodPct>=100?"good":""} mono">TODAY // ${foodPct}%</div>
+      <div class="life-actions"><button id="saveFood" class="btn">SAVE FOOD DATA</button></div>
+    </section>
+
+    <section class="life-card">
+      <h3 class="mono">PRAYER / ROUTINE</h3>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">COMPLETED TODAY</label><input id="lifePrayerDone" class="life-input" type="number" min="0" max="5" value="${Number(l.prayer.completed||0)}"></div>
+        <div class="life-field"><label class="mono">TARGET</label><input id="lifePrayerTarget" class="life-input" type="number" min="1" value="${Number(l.prayer.target||5)}"></div>
+      </div>
+      <div class="life-field" style="margin-top:7px"><label class="mono">ROUTINE NOTE</label><textarea id="lifePrayerNote" class="life-textarea">${esc(l.prayer.note||"")}</textarea></div>
+      <div class="life-status ${prayerPct>=100?"good":""} mono">TODAY // ${prayerPct}%</div>
+      <div class="life-actions"><button id="savePrayer" class="btn">SAVE ROUTINE</button></div>
+    </section>
+
+    <section class="life-card" style="grid-column:1/-1">
+      <h3 class="mono">APPOINTMENTS / ERRANDS</h3>
+      <div class="life-row">
+        <div class="life-field"><label class="mono">ITEM</label><input id="lifeErrandTitle" class="life-input" placeholder="DMV, groceries, appointment..."></div>
+        <div class="life-field"><label class="mono">WHEN</label><input id="lifeErrandWhen" class="life-input" placeholder="Saturday 11 AM"></div>
+      </div>
+      <div class="life-row">
+        <div class="life-field">
+          <label class="mono">TYPE</label>
+          <select id="lifeErrandType" class="life-select">
+            <option>ERRAND</option>
+            <option>APPOINTMENT</option>
+            <option>PERSONAL</option>
+          </select>
+        </div>
+        <div class="life-actions" style="align-items:end"><button id="addLifeErrand" class="btn">ADD ITEM</button></div>
+      </div>
+      <div class="life-list">${errands || '<div class="small mono">NO ITEMS</div>'}</div>
+    </section>
+  </div>`;
+}
+
+function rerenderLife(){
+  modalContent.innerHTML=lifeWorkspaceHtml();
+  attachLifeHandlers();
+}
+
+function attachLifeHandlers(){
+  const life=getLife();
+
+  const save=(section, values)=>{
+    Object.assign(life[section],values);
+    saveLife(life);
+    rerenderLife();
+  };
+
+  $("saveMoney")?.addEventListener("click",()=>save("money",{
+    balance:Number($("lifeBalance").value||0),
+    bills:Number($("lifeBills").value||0),
+    savings:Number($("lifeSavings").value||0),
+    target:Number($("lifeSavingsTarget").value||0)
+  }));
+
+  $("saveCar")?.addEventListener("click",()=>save("car",{
+    fuel:Number($("lifeFuel").value||0),
+    miles:Number($("lifeMiles").value||0),
+    nextService:$("lifeService").value.trim(),
+    note:$("lifeCarNote").value.trim()
+  }));
+
+  $("saveWork")?.addEventListener("click",()=>save("work",{
+    nextShift:$("lifeNextShift").value.trim(),
+    hoursWeek:Number($("lifeHours").value||0),
+    note:$("lifeWorkNote").value.trim()
+  }));
+
+  $("saveGym")?.addEventListener("click",()=>save("gym",{
+    sessionsWeek:Number($("lifeGymSessions").value||0),
+    targetSessions:Number($("lifeGymTarget").value||4),
+    weight:$("lifeWeight").value.trim(),
+    note:$("lifeGymNote").value.trim()
+  }));
+
+  $("saveFood")?.addEventListener("click",()=>save("food",{
+    mealsToday:Number($("lifeMeals").value||0),
+    targetMeals:Number($("lifeMealTarget").value||3),
+    note:$("lifeFoodNote").value.trim()
+  }));
+
+  $("savePrayer")?.addEventListener("click",()=>save("prayer",{
+    completed:Number($("lifePrayerDone").value||0),
+    target:Number($("lifePrayerTarget").value||5),
+    note:$("lifePrayerNote").value.trim()
+  }));
+
+  $("addLifeErrand")?.addEventListener("click",()=>{
+    const title=$("lifeErrandTitle").value.trim();
+    if(!title) return;
+    life.errands=life.errands||[];
+    life.errands.push({
+      title,
+      when:$("lifeErrandWhen").value.trim(),
+      type:$("lifeErrandType").value
+    });
+    saveLife(life);
+    rerenderLife();
+  });
+
+  document.querySelectorAll(".life-delete-errand").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      life.errands.splice(Number(btn.dataset.index),1);
+      saveLife(life);
+      rerenderLife();
+    });
+  });
+}
+
 const modal=$("modal"),modalTitle=$("modalTitle"),modalContent=$("modalContent");
 function openModal(title,html){modalTitle.textContent=title;modalContent.innerHTML=html;modal.classList.add("open")}
 $("closeModal").addEventListener("click",()=>modal.classList.remove("open"));
@@ -1634,7 +1967,7 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
   if(view==="calendar"){openModal("SCHEDULE // TODAY",scheduleWorkspaceHtml());setTimeout(attachScheduleHandlers,0)}
   if(view==="tasks"){const arr=dashboard?.actionable||[];openModal("TASKS // ALL ACTIONABLE",arr.length?arr.map((a,i)=>itemHtml(a,i)).join(""):`<div class="small mono">NO ACTIONABLE TASKS</div>`)}
   if(view==="notes"){const val=localStorage.getItem("nexus_notes")||"";openModal("NOTES // LOCAL",`<textarea id="notesArea" class="notearea" placeholder="Dump anything here...">${esc(val)}</textarea><div class="actions" style="justify-content:flex-start"><button id="saveNotes" class="btn">SAVE NOTES</button></div>`);setTimeout(()=>{$("saveNotes").addEventListener("click",()=>{localStorage.setItem("nexus_notes",$("notesArea").value);$("saveNotes").textContent="SAVED"})},0)}
-  if(view==="system"){openModal("SYSTEM // STATUS",`<div class="listsection"><div class="listlabel mono">CANVAS</div><div class="small mono">${esc($("syncText").textContent)} · ${esc(dashboard?.stats?.courses??"--")} COURSES · ${esc(dashboard?.stats?.actionable??"--")} ACTIONABLE</div></div><div class="listsection"><div class="listlabel mono">ROADMAP</div><div class="small mono">University intelligence, life modules, scheduling, notifications, AI decomposition, and analytics remain queued for future builds.</div></div>`)}
+  if(view==="life"){openModal("LIFE // PERSONAL MODULES",lifeWorkspaceHtml());setTimeout(attachLifeHandlers,0)}if(view==="system"){openModal("SYSTEM // STATUS",`<div class="listsection"><div class="listlabel mono">CANVAS</div><div class="small mono">${esc($("syncText").textContent)} · ${esc(dashboard?.stats?.courses??"--")} COURSES · ${esc(dashboard?.stats?.actionable??"--")} ACTIONABLE</div></div><div class="listsection"><div class="listlabel mono">ROADMAP</div><div class="small mono">University intelligence, life modules, scheduling, notifications, AI decomposition, and analytics remain queued for future builds.</div></div>`)}
 }));
 
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installBtn").style.display="inline-block"});

@@ -1,40 +1,65 @@
-NEXUS v7 FIXED — MEDIA DOCK
+NEXUS v8 — PERSONAL LIFE MODULES
 
-IMPORTANT
----------
-This is the corrected v7 build.
+Priority 7 is now built.
 
-The original v7 build accidentally replaced part of the main dashboard HTML
-while inserting the Media Dock. That removed elements required by the Canvas
-rendering code and left NEXUS stuck on CONNECTING.
+OPEN
+----
+Use the new LIFE button in the NEXUS navigation.
 
-This build starts from the last working v6 codebase and modifies ONLY the
-existing Media Dock.
+MODULES
+-------
+MONEY
+- current balance
+- upcoming bills
+- protected savings
+- savings target
+- automatic safe-to-spend calculation
 
-MEDIA DOCK ADDED
-----------------
-- artwork / thumbnails
-- PREV / NEXT
-- COMPACT / EXPAND
-- remembers selected track
-- YouTube Music deep-link
+CAR
+- fuel percentage
+- odometer
+- next maintenance/service
+- notes
 
-PRESERVED
----------
-- Canvas assignments
-- Daily Command
-- Priority Objective
-- Task Intelligence
-- Schedule / Calendar
-- Mobile / PWA
-- Alerts
-- existing Vercel APIs
+WORK
+- next shift
+- hours this week
+- work notes
 
-DEPLOY
-------
-Replace the repo files with this corrected build and redeploy through Vercel.
+GYM / BODY
+- sessions this week
+- weekly target
+- weight
+- progress
 
-Environment variables remain unchanged:
-CANVAS_URL
-CANVAS_TOKEN
-YOUTUBE_API_KEY
+FOOD
+- meals today
+- daily target
+- food notes
+
+PRAYER / ROUTINE
+- completed today
+- target
+- routine notes
+
+APPOINTMENTS / ERRANDS
+- create items
+- when
+- type
+- remove items
+
+STORAGE
+-------
+All of these values persist locally in the browser using localStorage.
+
+This means closing and reopening NEXUS does NOT erase them on the same browser/device.
+Cross-device sync belongs in a later backend/cloud pass.
+
+GESTURE CONTROL LATER
+---------------------
+Camera-based gesture control is feasible using browser camera access plus hand tracking.
+That should be added later after the core roadmap is complete.
+
+NEXT
+----
+Priority 8 — NEXUS Intelligence.
