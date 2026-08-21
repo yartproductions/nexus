@@ -1,43 +1,40 @@
-NEXUS v7 — MEDIA DOCK
+NEXUS v7 FIXED — MEDIA DOCK
 
-Priority 6 is now implemented.
+IMPORTANT
+---------
+This is the corrected v7 build.
 
-NEW
----
-- Playlist artwork / thumbnails
-- Now-playing artwork and title
-- PREV button
-- NEXT button
-- COMPACT / EXPAND mode
-- Remember last playlist
-- Remember last selected track
-- Click any track to play it
-- Direct YT MUSIC link for the current track
-- Keeps the light-blue NEXUS HUD theme
+The original v7 build accidentally replaced part of the main dashboard HTML
+while inserting the Media Dock. That removed elements required by the Canvas
+rendering code and left NEXUS stuck on CONNECTING.
 
-PLAYLIST
---------
-Paste a normal YouTube playlist URL and load it.
+This build starts from the last working v6 codebase and modifies ONLY the
+existing Media Dock.
 
-The YouTube API backend returns:
-- title
-- channel
-- duration
-- thumbnail
-- video ID
+MEDIA DOCK ADDED
+----------------
+- artwork / thumbnails
+- PREV / NEXT
+- COMPACT / EXPAND
+- remembers selected track
+- YouTube Music deep-link
 
-YouTube Music itself is not embedded.
-The YT MUSIC button opens the corresponding track in YouTube Music when possible.
+PRESERVED
+---------
+- Canvas assignments
+- Daily Command
+- Priority Objective
+- Task Intelligence
+- Schedule / Calendar
+- Mobile / PWA
+- Alerts
+- existing Vercel APIs
 
 DEPLOY
 ------
-Replace your repo files with this build, commit, and let Vercel redeploy.
+Replace the repo files with this corrected build and redeploy through Vercel.
 
-Keep environment variables:
+Environment variables remain unchanged:
 CANVAS_URL
 CANVAS_TOKEN
 YOUTUBE_API_KEY
-
-NEXT ROADMAP ITEM
------------------
-Priority 7 — Personal Life Modules.

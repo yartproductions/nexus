@@ -32,44 +32,51 @@
 - [ ] User-adjustable daily capacity
 
 ## Priority 3 — Schedule / Calendar
-- [x] Canvas calendar view
-- [x] Class / work / commute / personal blocks
+- [x] Basic chronological Canvas calendar view
+- [x] Class schedule blocks
+- [x] Work schedule blocks
+- [x] Commute blocks
+- [x] Personal event blocks
 - [x] Today timeline
-- [x] Auto-place daily missions into free time
+- [x] Auto-place unfinished daily missions into free time
 - [ ] Google Calendar integration
 - [ ] Multi-day week view
 - [ ] Conflict warnings
 - [ ] Drag/drop timeline editing
 
 ## Priority 4 — Task Intelligence
-- [x] Concrete one-line summaries
+- [x] Concrete one-line "What to do" summary
 - [x] Requirement extraction
 - [x] Cleaner mission steps
 - [x] Editable ETA
-- [ ] Improve edge cases with real assignments
+- [ ] Improve edge cases as real assignments appear
 - [ ] Learn realistic completion times later
 
 ## Priority 5 — Mobile / PWA
 - [x] Installable PWA
-- [x] Mobile-first layout
+- [x] App icons
+- [x] Standalone launch
+- [x] Mobile-first objective layout
 - [x] Larger one-thumb controls
 - [x] Fixed mobile command bar
-- [x] Offline shell
-- [x] Cached Canvas state
-- [x] Local deadline notifications
-- [ ] True server push
-- [ ] Server-side Canvas polling
+- [x] Mobile status strip
+- [x] Media Dock collapses on mobile
+- [x] Offline app shell
+- [x] Last-known Canvas dashboard cache
+- [x] Local 24h / 6h / 1h deadline notifications
+- [ ] True server push while the app is fully closed
+- [ ] Server-side/background Canvas polling
 
 ## Priority 6 — Media Dock
-- [x] Light-blue Media Dock
+- [x] Light-blue Media Dock theme
 - [x] Real YouTube playlist loading
 - [x] Real titles + durations
-- [x] Playlist artwork / thumbnails
-- [x] Previous / next controls
-- [x] Compact / expand mode
 - [x] Click-to-play track list
-- [x] Remember last playlist and track
-- [x] YouTube Music deep-link per track
+- [x] Playlist artwork
+- [x] Previous / next controls
+- [x] Compact mode
+- [x] Remember last selected track
+- [x] YouTube Music deep-link handling
 
 ## Priority 7 — Personal Life Modules
 - [ ] Money dashboard
