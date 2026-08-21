@@ -1,6 +1,8 @@
-// NEXUS Canvas API bridge
-// Vercel reads CANVAS_URL and CANVAS_TOKEN from Project Environment Variables.
-// NEVER place the Canvas token in this file.
+// NEXUS Canvas API bridge — v2
+// Required Vercel Environment Variables:
+//   CANVAS_URL
+//   CANVAS_TOKEN
+// NEVER commit the Canvas token to GitHub.
 
 function cleanBaseUrl(url = "") {
   return url.trim().replace(/\/+$/, "");
@@ -10,6 +12,8 @@ function stripHtml(html = "") {
   return String(html)
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
@@ -17,7 +21,9 @@ function stripHtml(html = "") {
     .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'")
-    .replace(/\s+/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n\s+/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
@@ -64,65 +70,156 @@ async function canvasFetchAll(url, token) {
 
 function getSubmissionState(assignment) {
   const s = assignment.submission || null;
-  if (!s) return "not_submitted";
-
+  if (!s) return "unsubmitted";
   if (s.workflow_state === "graded") return "graded";
   if (s.workflow_state === "submitted" || s.submitted_at) return "submitted";
   if (s.workflow_state === "pending_review") return "pending_review";
-  return s.workflow_state || "not_submitted";
+  return s.workflow_state || "unsubmitted";
 }
 
 function isSubmitted(assignment) {
-  const state = getSubmissionState(assignment);
-  return ["submitted", "graded", "pending_review"].includes(state);
+  return ["submitted", "graded", "pending_review"].includes(getSubmissionState(assignment));
 }
 
-function priorityScore(assignment) {
-  const now = Date.now();
-  const dueMs = assignment.due_at ? new Date(assignment.due_at).getTime() : null;
-  const submitted = isSubmitted(assignment);
+function sameLocalDay(a, b) {
+  return a.getFullYear() === b.getFullYear()
+    && a.getMonth() === b.getMonth()
+    && a.getDate() === b.getDate();
+}
 
-  if (submitted) return -1000;
+function estimateMinutes(a, description) {
+  const name = String(a.name || "").toLowerCase();
+  const types = a.submission_types || [];
+
+  if (name.includes("exam") || name.includes("midterm") || name.includes("final")) return 90;
+  if (name.includes("quiz")) return 30;
+  if (name.includes("essay") || name.includes("paper")) return 120;
+  if (name.includes("discussion") || name.includes("response")) return 45;
+  if (name.includes("reading") || name.includes("readings")) return 40;
+  if (name.includes("lab")) return 75;
+  if (types.includes("on_paper")) return 60;
+
+  const wordMatch = description.match(/(\d{3,4})\s*[-–to]*\s*(\d{3,4})?\s*words?/i);
+  if (wordMatch) {
+    const words = Number(wordMatch[2] || wordMatch[1]);
+    return Math.max(30, Math.round(words / 10));
+  }
+
+  return 45;
+}
+
+function makeSteps(a, description) {
+  const steps = [];
+  const lower = description.toLowerCase();
+  const types = a.submission_types || [];
+  const name = String(a.name || "").toLowerCase();
+
+  if (name.includes("reading") || lower.includes("read chapter") || lower.includes("read the")) {
+    steps.push("Complete the assigned reading or source material.");
+  }
+
+  const wordMatch = description.match(/(\d{3,4})(?:\s*[-–]\s*(\d{3,4}))?\s*words?/i);
+  if (wordMatch) {
+    const range = wordMatch[2] ? `${wordMatch[1]}–${wordMatch[2]} words` : `${wordMatch[1]} words`;
+    steps.push(`Draft the required response (${range}).`);
+  } else if (
+    types.includes("online_text_entry") ||
+    name.includes("essay") ||
+    name.includes("response") ||
+    name.includes("discussion")
+  ) {
+    steps.push("Draft the written response.");
+  }
+
+  const replyMatch = description.match(/(?:reply|respond)\s+(?:to\s+)?(\d+|two|three|four)\s+(?:classmates?|peers?|students?)/i);
+  if (replyMatch) {
+    steps.push(`Complete the required peer replies (${replyMatch[1]}).`);
+  } else if (lower.includes("reply to") || lower.includes("respond to your classmates")) {
+    steps.push("Complete the required peer replies.");
+  }
+
+  if (types.includes("online_upload")) {
+    steps.push("Prepare and upload the required file.");
+  }
+
+  if (types.includes("on_paper")) {
+    steps.push("Complete this assignment in person / on paper as instructed.");
+  }
+
+  if (name.includes("quiz")) {
+    steps.push("Review the relevant material, then take the quiz.");
+  }
+
+  if (name.includes("exam") || name.includes("midterm") || name.includes("final")) {
+    steps.push("Review the exam scope and prepare the required material.");
+  }
+
+  if (steps.length === 0) {
+    steps.push("Open the assignment and review the full instructions.");
+    steps.push("Complete the required work.");
+  } else {
+    steps.unshift("Open the Canvas assignment and confirm the requirements.");
+  }
+
+  if (!types.includes("on_paper") && !types.includes("not_graded")) {
+    steps.push("Review your work and submit it through Canvas.");
+  }
+
+  return [...new Set(steps)].slice(0, 6);
+}
+
+function priorityScore(a, nowMs) {
+  if (a.submitted) return -10000;
+  if (a.locked && a.unlockAt && new Date(a.unlockAt).getTime() > nowMs) return -500;
 
   let score = 0;
 
-  if (dueMs) {
-    const hours = (dueMs - now) / 36e5;
+  if (a.missing || a.overdue) score += 300;
+  if (!a.locked) score += 45;
 
-    if (hours < 0) score += 140;
-    else if (hours <= 6) score += 120;
-    else if (hours <= 12) score += 105;
-    else if (hours <= 24) score += 90;
-    else if (hours <= 48) score += 70;
-    else if (hours <= 72) score += 55;
-    else if (hours <= 168) score += 35;
-    else score += 10;
-  } else {
-    score += 2;
+  if (a.dueAt) {
+    const hours = (new Date(a.dueAt).getTime() - nowMs) / 36e5;
+
+    if (hours < 0) score += 250;
+    else if (hours <= 6) score += 220;
+    else if (hours <= 12) score += 190;
+    else if (hours <= 24) score += 160;
+    else if (hours <= 48) score += 130;
+    else if (hours <= 72) score += 105;
+    else if (hours <= 168) score += 75;
+    else if (hours <= 336) score += 35;
+    else if (hours <= 720) score += 12;
+  } else if (!a.locked) {
+    score += 20;
   }
 
-  const points = Number(assignment.points_possible || 0);
-  score += Math.min(points / 4, 25);
+  // Points matter, but never enough to make a distant exam outrank an imminent assignment.
+  const points = Number(a.points || 0);
+  score += Math.min(points / 10, 12);
 
-  if (assignment.has_submitted_submissions === false) score += 2;
-  if (assignment.locked_for_user) score -= 15;
+  // Small preference for shorter jobs when urgency is otherwise similar.
+  score += Math.max(0, 15 - (a.estimatedMinutes / 15));
 
   return Math.round(score * 10) / 10;
 }
 
-function normalizeAssignment(a, course) {
+function normalizeAssignment(a, course, nowMs) {
+  const description = stripHtml(a.description || "");
   const state = getSubmissionState(a);
   const submitted = isSubmitted(a);
   const due = a.due_at ? new Date(a.due_at) : null;
-  const now = new Date();
+  const unlock = a.unlock_at ? new Date(a.unlock_at) : null;
+  const lockedByDate = Boolean(unlock && unlock.getTime() > nowMs);
+  const locked = Boolean(a.locked_for_user || lockedByDate);
+  const estimatedMinutes = estimateMinutes(a, description);
 
-  return {
+  const item = {
     id: a.id,
     courseId: course.id,
     course: course.course_code || course.name || `Course ${course.id}`,
     courseName: course.name || course.course_code || `Course ${course.id}`,
     name: a.name || "Untitled Assignment",
-    description: stripHtml(a.description || "").slice(0, 3000),
+    description: description.slice(0, 5000),
     dueAt: a.due_at || null,
     unlockAt: a.unlock_at || null,
     lockAt: a.lock_at || null,
@@ -136,10 +233,14 @@ function normalizeAssignment(a, course) {
     grade: a.submission?.grade ?? null,
     late: Boolean(a.submission?.late),
     missing: Boolean(a.submission?.missing),
-    locked: Boolean(a.locked_for_user),
-    overdue: Boolean(due && due < now && !submitted),
-    priority: priorityScore(a),
+    locked,
+    overdue: Boolean(due && due.getTime() < nowMs && !submitted),
+    estimatedMinutes,
+    steps: makeSteps(a, description),
   };
+
+  item.priority = priorityScore(item, nowMs);
+  return item;
 }
 
 export default async function handler(req, res) {
@@ -160,7 +261,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Canvas's /courses endpoint returns courses available to the current user.
+    const now = new Date();
+    const nowMs = now.getTime();
+    const sevenDays = nowMs + 7 * 86400000;
+    const thirtyDays = nowMs + 30 * 86400000;
+
     const courseUrl =
       `${canvasUrl}/api/v1/courses` +
       `?enrollment_state=active` +
@@ -188,18 +293,18 @@ export default async function handler(req, res) {
             `&per_page=100`;
 
           const raw = await canvasFetchAll(url, token);
-          return raw.map(a => normalizeAssignment(a, course));
-        } catch (err) {
-          // Keep one restricted/broken course from killing the whole dashboard.
+          return raw.map(a => normalizeAssignment(a, course, nowMs));
+        } catch {
           return [];
         }
       })
     );
 
-    const assignments = assignmentArrays
-      .flat()
+    const assignments = assignmentArrays.flat();
+
+    const actionable = assignments
+      .filter(a => !a.submitted && !a.locked)
       .sort((a, b) => {
-        if (a.submitted !== b.submitted) return Number(a.submitted) - Number(b.submitted);
         if (b.priority !== a.priority) return b.priority - a.priority;
         if (!a.dueAt && !b.dueAt) return a.name.localeCompare(b.name);
         if (!a.dueAt) return 1;
@@ -207,16 +312,42 @@ export default async function handler(req, res) {
         return new Date(a.dueAt) - new Date(b.dueAt);
       });
 
-    const now = Date.now();
-    const sevenDays = now + 7 * 24 * 60 * 60 * 1000;
+    const lockedFuture = assignments
+      .filter(a => !a.submitted && a.locked)
+      .sort((a, b) => {
+        const au = a.unlockAt ? new Date(a.unlockAt).getTime() : Infinity;
+        const bu = b.unlockAt ? new Date(b.unlockAt).getTime() : Infinity;
+        return au - bu;
+      });
 
-    const active = assignments.filter(a => !a.submitted);
-    const submitted = assignments.filter(a => a.submitted);
-    const overdue = active.filter(a => a.overdue || a.missing);
-    const dueSoon = active.filter(a => {
+    const today = actionable.filter(a => {
+      if (!a.dueAt) return false;
+      return sameLocalDay(new Date(a.dueAt), now);
+    });
+
+    const thisWeek = actionable.filter(a => {
       if (!a.dueAt) return false;
       const t = new Date(a.dueAt).getTime();
-      return t >= now && t <= sevenDays;
+      return t > nowMs && t <= sevenDays && !sameLocalDay(new Date(a.dueAt), now);
+    });
+
+    const later = actionable.filter(a => {
+      if (!a.dueAt) return true;
+      const t = new Date(a.dueAt).getTime();
+      return t > sevenDays;
+    });
+
+    const overdue = actionable.filter(a => a.overdue || a.missing);
+    const dueSoon = actionable.filter(a => {
+      if (!a.dueAt) return false;
+      const t = new Date(a.dueAt).getTime();
+      return t >= nowMs && t <= sevenDays;
+    });
+
+    const visibleLocked = lockedFuture.filter(a => {
+      const unlock = a.unlockAt ? new Date(a.unlockAt).getTime() : Infinity;
+      const due = a.dueAt ? new Date(a.dueAt).getTime() : Infinity;
+      return unlock <= thirtyDays || due <= thirtyDays;
     });
 
     return res.status(200).json({
@@ -226,17 +357,22 @@ export default async function handler(req, res) {
       stats: {
         courses: courses.length,
         assignments: assignments.length,
-        active: active.length,
-        submitted: submitted.length,
+        actionable: actionable.length,
+        locked: lockedFuture.length,
         overdue: overdue.length,
-        dueThisWeek: dueSoon.length,
+        dueToday: today.length,
+        dueThisWeek: thisWeek.length,
       },
       courses,
       assignments,
-      active,
+      actionable,
+      today,
+      thisWeek,
+      later,
       overdue,
       dueSoon,
-      next: active[0] || null,
+      lockedFuture: visibleLocked,
+      next: actionable[0] || null,
     });
   } catch (error) {
     return res.status(error.status || 500).json({
