@@ -90,16 +90,22 @@
 - [x] Prayer / routine
 - [x] Appointments / errands
 - [x] Persistent local storage
+- [x] Command-driven Life console
 - [ ] Cross-device cloud sync later
 
 ## Priority 8 — NEXUS Intelligence
-- [ ] Unified priority engine across school + life
-- [ ] Conflict detection
-- [ ] "What can safely wait?"
-- [ ] Natural-language command bar
-- [ ] Trend analysis
-- [ ] Habit / procrastination detection
-- [ ] Weekly and semester analytics
+- [x] Unified priority engine across school + life
+- [x] Conflict detection
+- [x] "What can safely wait?"
+- [x] Natural-language command bar
+- [x] Basic trend/activity tracking
+- [x] Habit / procrastination signals
+- [x] 7-day activity analytics
+- [x] Browser bridge command receiver
+- [x] Shared Chrome/Safari WebExtension
+- [x] ChatGPT selection → NEXUS send flow
+- [ ] Deeper semester analytics later
+- [ ] Camera / gesture control later
 
 ## Priority 9 — Visual Polish
 - [ ] Refined central NEXUS art

@@ -1,80 +1,50 @@
-NEXUS v8 — PERSONAL LIFE MODULES
+NEXUS v9 — INTELLIGENCE + BROWSER BRIDGE
 
-Priority 7 is now built.
+Priority 8 is now built.
 
-OPEN
-----
-Use the new LIFE button in the NEXUS navigation.
+NEXUS INTELLIGENCE
+------------------
+- unified school + life priorities
+- schedule conflict detection
+- "what can wait?"
+- system status
+- basic behavior/procrastination signals
+- 7-day activity counters
+- one unified command console
 
-MODULES
--------
-MONEY
-- current balance
-- upcoming bills
-- protected savings
-- savings target
-- automatic safe-to-spend calculation
+COMMANDS
+--------
+what should I do first
+what can wait
+show conflicts
+status
+fuel 70
+balance 1500
+gym 3/4
+prayer 4/5
 
-CAR
-- fuel percentage
-- odometer
-- next maintenance/service
-- notes
+BROWSER BRIDGE
+--------------
+The /extension folder contains one shared Chrome/Safari WebExtension.
 
-WORK
-- next shift
-- hours this week
-- work notes
+Chrome:
+- chrome://extensions
+- Developer mode
+- Load unpacked
+- choose /extension
 
-GYM / BODY
-- sessions this week
-- weekly target
-- weight
-- progress
+ChatGPT:
+- highlight text
+- click SEND SELECTION TO NEXUS
+- extension sends it to an open NEXUS tab
 
-FOOD
-- meals today
-- daily target
-- food notes
+Safari:
+xcrun safari-web-extension-converter /path/to/extension
 
-PRAYER / ROUTINE
-- completed today
-- target
-- routine notes
-
-APPOINTMENTS / ERRANDS
-- create items
-- when
-- type
-- remove items
-
-STORAGE
--------
-All of these values persist locally in the browser using localStorage.
-
-This means closing and reopening NEXUS does NOT erase them on the same browser/device.
-Cross-device sync belongs in a later backend/cloud pass.
-
-GESTURE CONTROL LATER
----------------------
-Camera-based gesture control is feasible using browser camera access plus hand tracking.
-That should be added later after the core roadmap is complete.
+IMPORTANT
+---------
+The bridge is explicitly user-triggered. It does not give ChatGPT silent or autonomous browser control.
 
 NEXT
 ----
-Priority 8 — NEXUS Intelligence.
-
-
-V8.1 CANVAS/PWA RECOVERY
-------------------------
-This build changes the service worker from cache-first navigation to NETWORK-FIRST navigation.
-Old NEXUS shell caches are deleted automatically when the new worker activates.
-
-IMPORTANT FOR THE FIRST DEPLOY AFTER A BROKEN CACHED BUILD:
-1. Deploy these files to Vercel.
-2. Open the live Vercel URL.
-3. Hard refresh once (Cmd+Shift+R on Mac / Ctrl+Shift+R on Windows).
-4. If installed as a home-screen PWA, close it completely and reopen after the hard refresh.
-
-You should see "PERSONAL COMMAND OS // V8.1" at the top.
-If you do not see V8.1, the browser is still showing the old cached page.
+Priority 9 — Visual Polish.

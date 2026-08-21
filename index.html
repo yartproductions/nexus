@@ -70,7 +70,7 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
 .breakdown{display:none;margin-top:17px;padding-top:14px;border-top:1px solid rgba(127,216,255,.14);text-align:left}.breakdown.open{display:block}
 .break-title{color:var(--orange);font-size:9px;letter-spacing:.09em}.breakdown ol{margin:10px 0 0;padding-left:18px;color:#bbb3a8;font-size:10px;line-height:1.6}.desc{margin-top:9px;color:var(--muted);font-size:9px;line-height:1.5;max-height:90px;overflow:auto}
 
-.nav{position:absolute;z-index:4;bottom:15px;left:50%;transform:translateX(-50%);width:min(700px,89%);display:grid;grid-template-columns:repeat(5,1fr);border:1px solid rgba(127,216,255,.2);background:rgba(6,8,10,.94)}
+.nav{position:absolute;z-index:4;bottom:15px;left:50%;transform:translateX(-50%);width:min(700px,89%);display:grid;grid-template-columns:repeat(6,1fr);border:1px solid rgba(127,216,255,.2);background:rgba(6,8,10,.94)}
 .nav button{border:0;background:none;color:#9f978d;padding:12px 4px;font-size:7px;text-transform:uppercase;cursor:pointer}.nav .active{color:var(--red);box-shadow:inset 0 -2px var(--red)}
 
 .media{display:flex;flex-direction:column;gap:9px}.media-screen{position:relative;border:1px solid rgba(127,216,255,.2);background:#000;min-height:145px;overflow:hidden}
@@ -726,6 +726,155 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   .life-row{grid-template-columns:1fr}
 }
 
+
+/* V8.2 — LIFE COMMAND CONSOLE */
+.life-command-console{
+  margin-bottom:12px;
+  border:1px solid rgba(127,216,255,.22);
+  background:rgba(127,216,255,.025);
+  padding:11px;
+}
+.life-command-label{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:7px;
+}
+.life-command-line{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:7px;
+  align-items:center;
+}
+.life-command-prefix{
+  color:var(--orange);
+  font-size:10px;
+}
+.life-command-input{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid rgba(127,216,255,.22);
+  background:#061017;
+  color:#dce9ef;
+  padding:10px;
+  font-size:9px;
+  outline:none;
+}
+.life-command-input:focus{
+  border-color:rgba(127,216,255,.52);
+}
+.life-command-output{
+  margin-top:8px;
+  min-height:16px;
+  color:var(--muted);
+  font-size:8px;
+}
+.life-command-output.ok{color:#8bd47f}
+.life-command-output.err{color:var(--red)}
+.life-command-help{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.life-command-chip{
+  border:1px solid rgba(127,216,255,.13);
+  color:var(--muted);
+  padding:4px 6px;
+  font-size:7px;
+  cursor:pointer;
+  background:transparent;
+}
+.life-command-history{
+  margin-top:8px;
+  max-height:88px;
+  overflow:auto;
+  border-top:1px solid rgba(127,216,255,.07);
+}
+.life-command-history-item{
+  padding:5px 0;
+  border-bottom:1px solid rgba(127,216,255,.05);
+  font-size:7px;
+  color:var(--muted);
+}
+@media(max-width:760px){
+  .life-command-line{grid-template-columns:auto 1fr}
+  .life-command-line .btn{grid-column:1/-1}
+}
+
+
+/* V9 — NEXUS INTELLIGENCE */
+.intel-console{
+  margin-bottom:12px;
+  border:1px solid rgba(127,216,255,.22);
+  background:rgba(127,216,255,.025);
+  padding:11px;
+}
+.intel-line{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:7px;
+  align-items:center;
+}
+.intel-input{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid rgba(127,216,255,.22);
+  background:#061017;
+  color:#dce9ef;
+  padding:10px;
+  font-size:9px;
+}
+.intel-output{
+  margin-top:8px;
+  min-height:18px;
+  font-size:8px;
+  color:var(--muted);
+  white-space:pre-wrap;
+}
+.intel-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.intel-card{
+  border:1px solid rgba(127,216,255,.14);
+  background:rgba(127,216,255,.018);
+  padding:10px;
+}
+.intel-card h3{
+  margin:0 0 8px;
+  color:var(--orange);
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:.08em;
+}
+.intel-list{display:flex;flex-direction:column;gap:6px}
+.intel-item{
+  border-top:1px solid rgba(127,216,255,.07);
+  padding-top:6px;
+  font-size:8px;
+}
+.intel-item:first-child{border-top:0;padding-top:0}
+.intel-item strong{color:#dce9ef;font-weight:500}
+.intel-chipbar{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.intel-chip{
+  border:1px solid rgba(127,216,255,.13);
+  color:var(--muted);
+  background:transparent;
+  padding:5px 7px;
+  font-size:7px;
+  cursor:pointer;
+}
+.bridge-indicator{display:inline-flex;align-items:center;gap:5px;font-size:7px;color:var(--muted)}
+.bridge-dot{width:6px;height:6px;border-radius:50%;background:#8bd47f}
+@media(max-width:760px){
+  .intel-grid{grid-template-columns:1fr}
+  .intel-line{grid-template-columns:auto 1fr}
+  .intel-line .btn{grid-column:1/-1}
+}
+
 @media(max-width:1050px){.layout{grid-template-columns:245px minmax(380px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:650px}}
 @media(max-width:760px){
 .app{padding:13px 13px 84px}.top{grid-template-columns:1fr auto;min-height:118px}.clock{grid-column:1/-1;grid-row:2}.time{font-size:24px}.logo{font-size:17px}.topright{font-size:8px}
@@ -741,7 +890,7 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
 <div class="gridbg"></div>
 
 <header class="top">
-  <div class="brand"><div class="mark"></div><div><div class="logo">NEXUS</div><div class="sub mono">PERSONAL COMMAND OS // V8.1</div></div></div>
+  <div class="brand"><div class="mark"></div><div><div class="logo">NEXUS</div><div class="sub mono">PERSONAL COMMAND OS // V9</div></div></div>
   <div class="clock mono"><div id="clock" class="time">--:--</div><div id="date" class="date">---</div><div class="sync">CANVAS LINK: <span id="syncText">CONNECTING</span><i class="syncdot"></i></div></div>
   <div class="topright mono">
     <span id="courseCount">-- COURSES</span><br><span id="syncAge">WAITING FOR SYNC</span>
@@ -858,7 +1007,7 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
       <button data-view="calendar">Calendar</button>
       <button data-view="tasks">Tasks</button>
       <button data-view="notes">Notes</button>
-      <button class="navbtn" data-view="life">LIFE</button><button data-view="system">System</button>
+      <button class="navbtn" data-view="intel">NEXUS</button><button class="navbtn" data-view="life">LIFE</button><button data-view="system">System</button>
     </nav>
   </div>
 </section>
@@ -1110,6 +1259,7 @@ function renderDailyPlan(){
       if(s.done.includes(key)) s.done=s.done.filter(x=>x!==key);
       else s.done.push(key);
       saveDailyState(s);
+      saveIntelHistory({kind:"complete",command:key,at:new Date().toISOString()});
       renderDailyPlan();
 
       const next=buildDailyPlan().find(x=>!(getDailyState().done||[]).includes(taskKey(x)));
@@ -1122,6 +1272,7 @@ function renderDailyPlan(){
       s.deferred=s.deferred || [];
       if(!s.deferred.includes(key)) s.deferred.push(key);
       saveDailyState(s);
+      saveIntelHistory({kind:"defer",command:key,at:new Date().toISOString()});
       renderDailyPlan();
 
       const next=buildDailyPlan().find(x=>!(getDailyState().done||[]).includes(taskKey(x)));
@@ -1782,6 +1933,202 @@ function moneySafeToSpend(l){
   return Math.max(0,Number(l.money.balance||0)-Number(l.money.bills||0)-Number(l.money.savings||0));
 }
 
+
+function lifeCommandHistoryKey(){ return "nexus_life_command_history_v1"; }
+
+function getLifeCommandHistory(){
+  try{
+    return JSON.parse(localStorage.getItem(lifeCommandHistoryKey()) || "[]");
+  }catch{
+    return [];
+  }
+}
+
+function pushLifeCommandHistory(command, result){
+  const history=getLifeCommandHistory();
+  history.unshift({
+    command,
+    result,
+    at:new Date().toISOString()
+  });
+  localStorage.setItem(lifeCommandHistoryKey(),JSON.stringify(history.slice(0,20)));
+}
+
+function parseNumberValue(text){
+  const m=String(text||"").replace(/,/g,"").match(/-?\d+(?:\.\d+)?/);
+  return m ? Number(m[0]) : null;
+}
+
+function setLifeCommandOutput(message,type="ok"){
+  const el=$("lifeCommandOutput");
+  if(!el) return;
+  el.textContent=message;
+  el.className=`life-command-output mono ${type}`;
+}
+
+function executeLifeCommand(raw){
+  const command=String(raw||"").trim();
+  if(!command) return;
+
+  const lower=command.toLowerCase().replace(/\s+/g," ").trim();
+  const life=getLife();
+  let result="";
+
+  const setMoney=(field,label)=>{
+    const value=parseNumberValue(command);
+    if(value===null) throw new Error(`Give me a number for ${label}.`);
+    life.money[field]=value;
+    result=`${label.toUpperCase()} SET TO $${value.toFixed(2)}`;
+  };
+
+  try{
+    if(lower==="help" || lower==="commands"){
+      result="TRY: balance 1500 · bills 770 · savings 300 · fuel 65 · gym 3/4 · meals 2/3 · prayer 4/5 · add errand DMV Saturday 11am";
+      setLifeCommandOutput(result,"ok");
+      return;
+    }
+
+    if(/^(set )?balance\b/.test(lower)){
+      setMoney("balance","balance");
+    }
+    else if(/^(set )?bills?\b/.test(lower)){
+      setMoney("bills","bills");
+    }
+    else if(/^(set )?(savings|save)\b/.test(lower)){
+      setMoney("savings","protected savings");
+    }
+    else if(/^(set )?(savings )?target\b/.test(lower)){
+      setMoney("target","savings target");
+    }
+    else if(/^(set )?fuel\b/.test(lower)){
+      const value=parseNumberValue(command);
+      if(value===null) throw new Error("Give me a fuel percentage.");
+      life.car.fuel=Math.max(0,Math.min(100,value));
+      result=`FUEL SET TO ${life.car.fuel}%`;
+    }
+    else if(/^(set )?(miles|odometer)\b/.test(lower)){
+      const value=parseNumberValue(command);
+      if(value===null) throw new Error("Give me the odometer mileage.");
+      life.car.miles=value;
+      result=`ODOMETER SET TO ${value.toLocaleString()} MI`;
+    }
+    else if(/^(set )?service\b/.test(lower)){
+      const value=command.replace(/^(set )?service\s*/i,"").trim();
+      if(!value) throw new Error("Tell me the next service.");
+      life.car.nextService=value;
+      result=`NEXT SERVICE // ${value}`;
+    }
+    else if(/^note car\b/.test(lower)){
+      life.car.note=command.replace(/^note car\s*/i,"").trim();
+      result="CAR NOTE UPDATED";
+    }
+    else if(/^(set )?(shift|next shift)\b/.test(lower)){
+      const value=command.replace(/^(set )?(shift|next shift)\s*/i,"").trim();
+      if(!value) throw new Error("Tell me the next shift.");
+      life.work.nextShift=value;
+      result=`NEXT SHIFT // ${value}`;
+    }
+    else if(/^(set )?(hours|work hours)\b/.test(lower)){
+      const value=parseNumberValue(command);
+      if(value===null) throw new Error("Give me the hours.");
+      life.work.hoursWeek=value;
+      result=`WORK HOURS SET TO ${value}`;
+    }
+    else if(/^note work\b/.test(lower)){
+      life.work.note=command.replace(/^note work\s*/i,"").trim();
+      result="WORK NOTE UPDATED";
+    }
+    else if(/^gym\b/.test(lower)){
+      const ratio=command.match(/(\d+)\s*\/\s*(\d+)/);
+      if(ratio){
+        life.gym.sessionsWeek=Number(ratio[1]);
+        life.gym.targetSessions=Math.max(1,Number(ratio[2]));
+        result=`GYM // ${ratio[1]}/${ratio[2]} THIS WEEK`;
+      }else{
+        const value=parseNumberValue(command);
+        if(value===null) throw new Error("Use gym 3 or gym 3/4.");
+        life.gym.sessionsWeek=value;
+        result=`GYM SESSIONS SET TO ${value}`;
+      }
+    }
+    else if(/^weight\b/.test(lower)){
+      const value=parseNumberValue(command);
+      if(value===null) throw new Error("Give me your weight.");
+      life.gym.weight=String(value);
+      result=`WEIGHT SET TO ${value} LB`;
+    }
+    else if(/^note gym\b/.test(lower)){
+      life.gym.note=command.replace(/^note gym\s*/i,"").trim();
+      result="GYM NOTE UPDATED";
+    }
+    else if(/^meals?\b/.test(lower)){
+      const ratio=command.match(/(\d+)\s*\/\s*(\d+)/);
+      if(ratio){
+        life.food.mealsToday=Number(ratio[1]);
+        life.food.targetMeals=Math.max(1,Number(ratio[2]));
+        result=`MEALS // ${ratio[1]}/${ratio[2]} TODAY`;
+      }else{
+        const value=parseNumberValue(command);
+        if(value===null) throw new Error("Use meals 2 or meals 2/3.");
+        life.food.mealsToday=value;
+        result=`MEALS TODAY SET TO ${value}`;
+      }
+    }
+    else if(/^note food\b/.test(lower)){
+      life.food.note=command.replace(/^note food\s*/i,"").trim();
+      result="FOOD NOTE UPDATED";
+    }
+    else if(/^prayer\b/.test(lower)){
+      const ratio=command.match(/(\d+)\s*\/\s*(\d+)/);
+      if(ratio){
+        life.prayer.completed=Number(ratio[1]);
+        life.prayer.target=Math.max(1,Number(ratio[2]));
+        result=`PRAYER // ${ratio[1]}/${ratio[2]} TODAY`;
+      }else{
+        const value=parseNumberValue(command);
+        if(value===null) throw new Error("Use prayer 4 or prayer 4/5.");
+        life.prayer.completed=value;
+        result=`PRAYERS COMPLETED SET TO ${value}`;
+      }
+    }
+    else if(/^note (prayer|routine)\b/.test(lower)){
+      life.prayer.note=command.replace(/^note (prayer|routine)\s*/i,"").trim();
+      result="ROUTINE NOTE UPDATED";
+    }
+    else if(/^add (errand|appointment|personal)\b/.test(lower)){
+      const m=command.match(/^add\s+(errand|appointment|personal)\s+(.+)$/i);
+      if(!m) throw new Error("Example: add errand DMV Saturday 11am");
+      life.errands=life.errands||[];
+      life.errands.push({
+        title:m[2].trim(),
+        when:"",
+        type:m[1].toUpperCase()
+      });
+      result=`${m[1].toUpperCase()} ADDED // ${m[2].trim()}`;
+    }
+    else if(/^remove (errand|item)\b/.test(lower)){
+      const n=parseNumberValue(command);
+      if(n===null || n<1 || n>life.errands.length) throw new Error("Use the item number shown in the list.");
+      const removed=life.errands.splice(n-1,1)[0];
+      result=`REMOVED // ${removed.title}`;
+    }
+    else if(/^clear (errands|appointments)\b/.test(lower)){
+      life.errands=[];
+      result="ERRANDS / APPOINTMENTS CLEARED";
+    }
+    else{
+      throw new Error("Command not recognized. Type help.");
+    }
+
+    saveLife(life);
+    pushLifeCommandHistory(command,result);
+    rerenderLife();
+    setTimeout(()=>setLifeCommandOutput(result,"ok"),0);
+  }catch(err){
+    setLifeCommandOutput(err.message || "Command failed.","err");
+  }
+}
+
 function lifeWorkspaceHtml(){
   const l=getLife();
   const safe=moneySafeToSpend(l);
@@ -1798,7 +2145,41 @@ function lifeWorkspaceHtml(){
       <button class="mini-btn danger life-delete-errand" data-index="${i}">REMOVE</button>
     </div>`).join("");
 
+  const history=getLifeCommandHistory().slice(0,6).map(h=>`
+    <div class="life-command-history-item mono">&gt; ${esc(h.command)} // ${esc(h.result)}</div>
+  `).join("");
+
   return `
+  <div class="life-command-console">
+    <div class="life-command-label">
+      <div>
+        <div class="small mono">LIFE COMMAND</div>
+        <div class="small mono">TYPE WHAT CHANGED. NEXUS UPDATES THE MODULE.</div>
+      </div>
+      <button id="lifeHelpBtn" class="mini-btn">HELP</button>
+    </div>
+
+    <div class="life-command-line">
+      <span class="life-command-prefix mono">&gt;</span>
+      <input id="lifeCommandInput" class="life-command-input mono" autocomplete="off"
+        placeholder="balance 1500  /  fuel 65  /  gym 3/4  /  add errand DMV Saturday 11am">
+      <button id="lifeRunCommand" class="btn">EXECUTE</button>
+    </div>
+
+    <div id="lifeCommandOutput" class="life-command-output mono">READY FOR COMMAND.</div>
+
+    <div class="life-command-help">
+      <button class="life-command-chip mono" data-life-example="balance 1500">balance 1500</button>
+      <button class="life-command-chip mono" data-life-example="bills 770">bills 770</button>
+      <button class="life-command-chip mono" data-life-example="fuel 65">fuel 65</button>
+      <button class="life-command-chip mono" data-life-example="gym 3/4">gym 3/4</button>
+      <button class="life-command-chip mono" data-life-example="meals 2/3">meals 2/3</button>
+      <button class="life-command-chip mono" data-life-example="prayer 4/5">prayer 4/5</button>
+    </div>
+
+    <div class="life-command-history">${history}</div>
+  </div>
+
   <div class="life-summary">
     <div class="calendar-chip"><div class="small mono">SAFE TO SPEND</div><div class="v mono">$${safe.toFixed(2)}</div></div>
     <div class="calendar-chip"><div class="small mono">GYM</div><div class="v mono">${gymPct}%</div></div>
@@ -1906,6 +2287,37 @@ function rerenderLife(){
 function attachLifeHandlers(){
   const life=getLife();
 
+  const runCommand=()=>{
+    const input=$("lifeCommandInput");
+    if(!input) return;
+    executeLifeCommand(input.value);
+  };
+
+  $("lifeRunCommand")?.addEventListener("click",runCommand);
+
+  $("lifeCommandInput")?.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter"){
+      e.preventDefault();
+      runCommand();
+    }
+  });
+
+  $("lifeHelpBtn")?.addEventListener("click",()=>{
+    setLifeCommandOutput(
+      "COMMANDS: balance, bills, savings, target, fuel, miles, service, shift, hours, gym, weight, meals, prayer, note car/work/gym/food/routine, add errand/appointment, remove item.",
+      "ok"
+    );
+  });
+
+  document.querySelectorAll("[data-life-example]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const input=$("lifeCommandInput");
+      if(!input) return;
+      input.value=btn.dataset.lifeExample||"";
+      input.focus();
+    });
+  });
+
   const save=(section, values)=>{
     Object.assign(life[section],values);
     saveLife(life);
@@ -1973,6 +2385,249 @@ function attachLifeHandlers(){
   });
 }
 
+
+function intelHistoryKey(){ return "nexus_intel_history_v1"; }
+function getIntelHistory(){
+  try{return JSON.parse(localStorage.getItem(intelHistoryKey())||"[]");}
+  catch{return [];}
+}
+function saveIntelHistory(item){
+  const h=getIntelHistory();
+  h.unshift(item);
+  localStorage.setItem(intelHistoryKey(),JSON.stringify(h.slice(0,100)));
+}
+
+function allLifeUrgencies(){
+  const life=getLife();
+  const items=[];
+  if(Number(life.money?.bills||0)>0) items.push({type:"money",label:`$${Number(life.money.bills).toFixed(2)} in upcoming bills`,score:65});
+  if(Number(life.car?.fuel||0)>0 && Number(life.car.fuel)<25) items.push({type:"car",label:`Fuel low at ${life.car.fuel}%`,score:75});
+  if(life.car?.nextService) items.push({type:"car",label:`Service: ${life.car.nextService}`,score:48});
+  if(life.work?.nextShift) items.push({type:"work",label:`Next shift: ${life.work.nextShift}`,score:52});
+  if(Number(life.food?.mealsToday||0)<Number(life.food?.targetMeals||3)) items.push({type:"food",label:`Meals ${life.food.mealsToday||0}/${life.food.targetMeals||3}`,score:42});
+  if(Number(life.prayer?.completed||0)<Number(life.prayer?.target||5)) items.push({type:"routine",label:`Prayer ${life.prayer.completed||0}/${life.prayer.target||5}`,score:40});
+  (life.errands||[]).forEach((e,i)=>items.push({type:"errand",label:e.title,score:45-i}));
+  return items.sort((a,b)=>b.score-a.score);
+}
+
+function schoolPriorityItems(){
+  if(!dashboard?.actionable) return [];
+  return dashboard.actionable.slice(0,8).map(a=>({
+    type:"school",label:a.name,score:Number(a.priority||0),eta:effectiveEta(a),due:a.dueAt,task:a
+  }));
+}
+
+function unifiedPriorityItems(){
+  return [...schoolPriorityItems(),...allLifeUrgencies()].sort((a,b)=>b.score-a.score).slice(0,10);
+}
+
+function scheduleConflicts(){
+  const blocks=typeof getTodayScheduleBlocks==="function" ? getTodayScheduleBlocks() : [];
+  const conflicts=[];
+  for(let i=0;i<blocks.length;i++){
+    for(let j=i+1;j<blocks.length;j++){
+      const a=blocks[i],b=blocks[j];
+      const as=minutesFromTime(a.start),ae=minutesFromTime(a.end);
+      const bs=minutesFromTime(b.start),be=minutesFromTime(b.end);
+      if(as<be && bs<ae) conflicts.push(`${a.title} overlaps ${b.title}`);
+    }
+  }
+  return conflicts;
+}
+
+function safelyWaitItems(){
+  if(!dashboard?.assignments) return [];
+  const now=Date.now();
+  return dashboard.assignments
+    .filter(a=>a.dueAt && !a.submitted && !a.locked)
+    .map(a=>({a,hours:(new Date(a.dueAt).getTime()-now)/3600000}))
+    .filter(x=>x.hours>72)
+    .sort((x,y)=>y.hours-x.hours)
+    .slice(0,5)
+    .map(x=>x.a);
+}
+
+function procrastinationSignals(){
+  const history=getIntelHistory();
+  const state=getDailyState();
+  const deferred=(state.deferred||[]).length;
+  const signals=[];
+  if(deferred>=2) signals.push(`${deferred} missions deferred today`);
+  if(history.filter(x=>x.kind==="defer").length>=5) signals.push("Repeated defer pattern detected");
+  if(!signals.length) signals.push("No strong avoidance pattern detected");
+  return signals;
+}
+
+function weeklyAnalytics(){
+  const history=getIntelHistory();
+  const now=Date.now();
+  const week=history.filter(x=>now-new Date(x.at).getTime()<7*86400000);
+  return {
+    commands:week.filter(x=>x.kind==="command").length,
+    defers:week.filter(x=>x.kind==="defer").length,
+    completes:week.filter(x=>x.kind==="complete").length
+  };
+}
+
+function intelWorkspaceHtml(){
+  const priorities=unifiedPriorityItems();
+  const conflicts=scheduleConflicts();
+  const waits=safelyWaitItems();
+  const signals=procrastinationSignals();
+  const stats=weeklyAnalytics();
+
+  return `
+    <div class="intel-console">
+      <div class="life-command-label">
+        <div>
+          <div class="small mono">NEXUS COMMAND</div>
+          <div class="small mono">ASK OR COMMAND THE SYSTEM</div>
+        </div>
+        <div class="bridge-indicator"><span class="bridge-dot"></span><span>BRIDGE READY</span></div>
+      </div>
+      <div class="intel-line">
+        <span class="life-command-prefix mono">&gt;</span>
+        <input id="intelCommandInput" class="intel-input mono" autocomplete="off"
+          placeholder="what should I do first / what can wait / show conflicts / fuel 70">
+        <button id="intelRunBtn" class="btn">RUN</button>
+      </div>
+      <div id="intelOutput" class="intel-output mono">READY.</div>
+      <div class="intel-chipbar">
+        <button class="intel-chip mono" data-intel-example="what should I do first">WHAT FIRST?</button>
+        <button class="intel-chip mono" data-intel-example="what can wait">WHAT CAN WAIT?</button>
+        <button class="intel-chip mono" data-intel-example="show conflicts">CONFLICTS</button>
+        <button class="intel-chip mono" data-intel-example="status">STATUS</button>
+      </div>
+    </div>
+
+    <div class="intel-grid">
+      <section class="intel-card">
+        <h3 class="mono">UNIFIED PRIORITY</h3>
+        <div class="intel-list">
+          ${priorities.length?priorities.map((p,i)=>`
+            <div class="intel-item">
+              <strong>${String(i+1).padStart(2,"0")} // ${esc(p.label)}</strong>
+              <div class="small mono">${esc(p.type.toUpperCase())} · SCORE ${Math.round(p.score)}</div>
+            </div>`).join(""):'<div class="small mono">NO ACTIVE PRIORITIES</div>'}
+        </div>
+      </section>
+
+      <section class="intel-card">
+        <h3 class="mono">CONFLICT DETECTION</h3>
+        <div class="intel-list">
+          ${conflicts.length?conflicts.map(c=>`<div class="intel-item">${esc(c)}</div>`).join(""):'<div class="small mono">NO SCHEDULE CONFLICTS DETECTED</div>'}
+        </div>
+      </section>
+
+      <section class="intel-card">
+        <h3 class="mono">SAFE TO WAIT</h3>
+        <div class="intel-list">
+          ${waits.length?waits.map(a=>`
+            <div class="intel-item">
+              <strong>${esc(a.name)}</strong>
+              <div class="small mono">${esc(relDue(a.dueAt))}</div>
+            </div>`).join(""):'<div class="small mono">NOTHING CLEARLY DEFERRABLE</div>'}
+        </div>
+      </section>
+
+      <section class="intel-card">
+        <h3 class="mono">BEHAVIOR SIGNALS</h3>
+        <div class="intel-list">${signals.map(s=>`<div class="intel-item">${esc(s)}</div>`).join("")}</div>
+      </section>
+
+      <section class="intel-card" style="grid-column:1/-1">
+        <h3 class="mono">7 DAY ACTIVITY</h3>
+        <div class="life-summary">
+          <div class="calendar-chip"><div class="small mono">COMMANDS</div><div class="v mono">${stats.commands}</div></div>
+          <div class="calendar-chip"><div class="small mono">COMPLETED</div><div class="v mono">${stats.completes}</div></div>
+          <div class="calendar-chip"><div class="small mono">DEFERRED</div><div class="v mono">${stats.defers}</div></div>
+          <div class="calendar-chip"><div class="small mono">ACTIVE</div><div class="v mono">${priorities.length}</div></div>
+        </div>
+      </section>
+    </div>`;
+}
+
+function setIntelOutput(text,type=""){
+  const el=$("intelOutput");
+  if(!el) return;
+  el.textContent=text;
+  el.style.color=type==="err"?"var(--red)":type==="ok"?"#8bd47f":"var(--muted)";
+}
+
+function runUnifiedCommand(raw){
+  const command=String(raw||"").trim();
+  if(!command) return;
+  const lower=command.toLowerCase().replace(/\s+/g," ").trim();
+
+  if(/^(balance|bills?|savings|save|target|fuel|miles|odometer|service|shift|next shift|hours|work hours|gym|weight|meals?|prayer|note |add |remove |clear errands)/.test(lower)){
+    executeLifeCommand(command);
+    saveIntelHistory({kind:"command",command,at:new Date().toISOString()});
+    setIntelOutput("LIFE COMMAND SENT.","ok");
+    return;
+  }
+
+  if(lower.includes("what should i do first") || lower==="what first" || lower==="priority"){
+    const top=unifiedPriorityItems()[0];
+    setIntelOutput(top ? `DO THIS FIRST // ${top.label}` : "NO ACTIVE PRIORITY.","ok");
+    saveIntelHistory({kind:"command",command,at:new Date().toISOString()});
+    return;
+  }
+
+  if(lower.includes("what can wait") || lower.includes("safe to wait")){
+    const waits=safelyWaitItems();
+    setIntelOutput(waits.length ? waits.map((a,i)=>`${i+1}. ${a.name} — ${relDue(a.dueAt)}`).join("\n") : "NOTHING IS CLEARLY SAFE TO PUSH RIGHT NOW.","ok");
+    saveIntelHistory({kind:"command",command,at:new Date().toISOString()});
+    return;
+  }
+
+  if(lower.includes("conflict")){
+    const conflicts=scheduleConflicts();
+    setIntelOutput(conflicts.length?conflicts.join("\n"):"NO SCHEDULE CONFLICTS DETECTED.","ok");
+    saveIntelHistory({kind:"command",command,at:new Date().toISOString()});
+    return;
+  }
+
+  if(lower==="status" || lower.includes("give me status")){
+    const top=unifiedPriorityItems()[0];
+    const conflicts=scheduleConflicts();
+    const life=getLife();
+    setIntelOutput([
+      `TOP // ${top?.label||"CLEAR"}`,
+      `TODAY // ${buildDailyPlan().length} MISSIONS`,
+      `SAFE TO SPEND // $${moneySafeToSpend(life).toFixed(2)}`,
+      `CONFLICTS // ${conflicts.length}`
+    ].join("\n"),"ok");
+    saveIntelHistory({kind:"command",command,at:new Date().toISOString()});
+    return;
+  }
+
+  setIntelOutput("COMMAND NOT RECOGNIZED YET. TRY: what should I do first / what can wait / show conflicts / status / or any LIFE command.","err");
+}
+
+function attachIntelHandlers(){
+  const run=()=>runUnifiedCommand($("intelCommandInput")?.value||"");
+  $("intelRunBtn")?.addEventListener("click",run);
+  $("intelCommandInput")?.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();run();}
+  });
+  document.querySelectorAll("[data-intel-example]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      $("intelCommandInput").value=btn.dataset.intelExample||"";
+      $("intelCommandInput").focus();
+    });
+  });
+}
+
+window.addEventListener("message",(event)=>{
+  if(event.source!==window) return;
+  const msg=event.data;
+  if(!msg || msg.source!=="nexus-extension" || msg.type!=="NEXUS_COMMAND") return;
+  const command=String(msg.command||"").trim();
+  if(!command) return;
+  runUnifiedCommand(command);
+  window.postMessage({source:"nexus-page",type:"NEXUS_COMMAND_RESULT",command,ok:true},"*");
+});
+
 const modal=$("modal"),modalTitle=$("modalTitle"),modalContent=$("modalContent");
 function openModal(title,html){modalTitle.textContent=title;modalContent.innerHTML=html;modal.classList.add("open")}
 $("closeModal").addEventListener("click",()=>modal.classList.remove("open"));
@@ -1988,7 +2643,7 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
   if(view==="calendar"){openModal("SCHEDULE // TODAY",scheduleWorkspaceHtml());setTimeout(attachScheduleHandlers,0)}
   if(view==="tasks"){const arr=dashboard?.actionable||[];openModal("TASKS // ALL ACTIONABLE",arr.length?arr.map((a,i)=>itemHtml(a,i)).join(""):`<div class="small mono">NO ACTIONABLE TASKS</div>`)}
   if(view==="notes"){const val=localStorage.getItem("nexus_notes")||"";openModal("NOTES // LOCAL",`<textarea id="notesArea" class="notearea" placeholder="Dump anything here...">${esc(val)}</textarea><div class="actions" style="justify-content:flex-start"><button id="saveNotes" class="btn">SAVE NOTES</button></div>`);setTimeout(()=>{$("saveNotes").addEventListener("click",()=>{localStorage.setItem("nexus_notes",$("notesArea").value);$("saveNotes").textContent="SAVED"})},0)}
-  if(view==="life"){openModal("LIFE // PERSONAL MODULES",lifeWorkspaceHtml());setTimeout(attachLifeHandlers,0)}if(view==="system"){openModal("SYSTEM // STATUS",`<div class="listsection"><div class="listlabel mono">CANVAS</div><div class="small mono">${esc($("syncText").textContent)} · ${esc(dashboard?.stats?.courses??"--")} COURSES · ${esc(dashboard?.stats?.actionable??"--")} ACTIONABLE</div></div><div class="listsection"><div class="listlabel mono">ROADMAP</div><div class="small mono">University intelligence, life modules, scheduling, notifications, AI decomposition, and analytics remain queued for future builds.</div></div>`)}
+  if(view==="life"){openModal("LIFE // COMMAND CONSOLE",lifeWorkspaceHtml());setTimeout(attachLifeHandlers,0)}if(view==="intel"){openModal("NEXUS // INTELLIGENCE",intelWorkspaceHtml());setTimeout(attachIntelHandlers,0)}if(view==="system"){openModal("SYSTEM // STATUS",`<div class="listsection"><div class="listlabel mono">CANVAS</div><div class="small mono">${esc($("syncText").textContent)} · ${esc(dashboard?.stats?.courses??"--")} COURSES · ${esc(dashboard?.stats?.actionable??"--")} ACTIONABLE</div></div><div class="listsection"><div class="listlabel mono">ROADMAP</div><div class="small mono">University intelligence, life modules, scheduling, notifications, AI decomposition, and analytics remain queued for future builds.</div></div>`)}
 }));
 
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installBtn").style.display="inline-block"});
