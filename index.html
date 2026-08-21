@@ -741,11 +741,11 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
 <div class="gridbg"></div>
 
 <header class="top">
-  <div class="brand"><div class="mark"></div><div><div class="logo">NEXUS</div><div class="sub mono">PERSONAL COMMAND OS</div></div></div>
+  <div class="brand"><div class="mark"></div><div><div class="logo">NEXUS</div><div class="sub mono">PERSONAL COMMAND OS // V8.1</div></div></div>
   <div class="clock mono"><div id="clock" class="time">--:--</div><div id="date" class="date">---</div><div class="sync">CANVAS LINK: <span id="syncText">CONNECTING</span><i class="syncdot"></i></div></div>
   <div class="topright mono">
     <span id="courseCount">-- COURSES</span><br><span id="syncAge">WAITING FOR SYNC</span>
-    <div class="topactions"><button id="notifyBtn" class="btn mobile-install" type="button">ALERTS</button><button id="installBtn" class="btn mobile-install" type="button" style="display:none">INSTALL</button><button id="syncBtn" class="btn">SYNC</button><button id="installBtn" class="btn" style="display:none">INSTALL</button></div>
+    <div class="topactions"><button id="notifyBtn" class="btn mobile-install" type="button">ALERTS</button><button id="installBtn" class="btn mobile-install" type="button" style="display:none">INSTALL</button><button id="syncBtn" class="btn">SYNC</button></div>
   </div>
 </header>
 <div class="mobile-statusbar" id="mobileStatusbar">
@@ -1292,14 +1292,35 @@ window.addEventListener("offline",()=>{
 
 async function loadCanvas(){
   $("syncBtn").textContent="SYNCING";
+  $("syncText").textContent="CONNECTING";
   try{
     const r=await fetch("/api/canvas",{cache:"no-store",headers:{Accept:"application/json"}});
     const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{throw new Error(`API returned non-JSON (${r.status})`)}
     if(!r.ok||!data.ok)throw new Error(data.details||data.error||`Canvas returned ${r.status}`);
-    dashboard=data;$("syncText").textContent="ONLINE";$("systemStatus").textContent="ONLINE";$("systemStatus").className="sval mono ok";$("courseCount").textContent=`${data.stats.courses} COURSES`;$("activeCount").textContent=`${data.stats.actionable} ACTIVE`;$("uniValue").textContent=data.stats.actionable;$("alertCount").textContent=`${data.stats.overdue} RISK`;$("syncAge").textContent=`SYNC ${new Date(data.syncedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`;renderQueue();renderDailyPlan();updateMobileStatus();collapseMediaOnMobile();checkDeadlineReminders();
+    dashboard=data;saveCanvasCache(data);lastDashboardSync=Date.now();$("syncText").textContent="ONLINE";$("systemStatus").textContent="ONLINE";$("systemStatus").className="sval mono ok";$("courseCount").textContent=`${data.stats.courses} COURSES`;$("activeCount").textContent=`${data.stats.actionable} ACTIVE`;$("uniValue").textContent=data.stats.actionable;$("alertCount").textContent=`${data.stats.overdue} RISK`;$("syncAge").textContent=`SYNC ${new Date(data.syncedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`;renderQueue();renderDailyPlan();updateMobileStatus();collapseMediaOnMobile();checkDeadlineReminders();
     const alerts=[...(data.overdue||[]),...(data.dueSoon||[]).filter(x=>!(data.overdue||[]).some(o=>o.id===x.id&&o.courseId===x.courseId))].slice(0,6);
     $("alerts").innerHTML=alerts.length?alerts.map(itemHtml).join(""):`<div class="small mono ok">NO IMMEDIATE DEADLINE RISKS</div>`;setFocus(data.next);
-  }catch(err){$("syncText").textContent="ERROR";$("systemStatus").textContent="ERROR";$("systemStatus").className="sval mono danger";$("focusTitle").textContent="SYNC FAILURE";$("focusCourse").textContent=err.message;$("missionQueue").innerHTML=`<div class="small mono danger">${esc(err.message)}</div>`;$("alerts").innerHTML=`<div class="small mono danger">CHECK /api/canvas</div>`}
+  }catch(err){
+    const cached=loadCanvasCache();
+    if(cached && cached.ok){
+      dashboard=cached;
+      $("syncText").textContent="CACHED";
+      $("systemStatus").textContent="OFFLINE CACHE";
+      $("systemStatus").className="sval mono";
+      $("courseCount").textContent=`${cached.stats?.courses??"--"} COURSES`;
+      $("activeCount").textContent=`${cached.stats?.actionable??"--"} ACTIVE`;
+      renderQueue();renderDailyPlan();updateMobileStatus();collapseMediaOnMobile();
+      setFocus(cached.next);
+    }else{
+      $("syncText").textContent="ERROR";
+      $("systemStatus").textContent="ERROR";
+      $("systemStatus").className="sval mono danger";
+      $("focusTitle").textContent="SYNC FAILURE";
+      $("focusCourse").textContent=err.message;
+      $("missionQueue").innerHTML=`<div class="small mono danger">${esc(err.message)}</div>`;
+      $("alerts").innerHTML=`<div class="small mono danger">CHECK /api/canvas</div>`;
+    }
+  }
   finally{$("syncBtn").textContent="SYNC"}
 }
 
@@ -1972,7 +1993,21 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
 
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installBtn").style.display="inline-block"});
 $("installBtn").addEventListener("click",async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("installBtn").style.display="none"});
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+if("serviceWorker" in navigator){
+  window.addEventListener("load",async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register("/sw.js?v=8.1",{updateViaCache:"none"});
+      await reg.update();
+      if(reg.waiting) reg.waiting.postMessage({type:"SKIP_WAITING"});
+    }catch{}
+  });
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(!sessionStorage.getItem("nexus_sw_reloaded")){
+      sessionStorage.setItem("nexus_sw_reloaded","1");
+      location.reload();
+    }
+  });
+}
 
 loadCanvas();setInterval(loadCanvas,5*60*1000);
 </script>
