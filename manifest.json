@@ -1,5 +1,5 @@
 {
-  "name": "NEXUS Personal Command OS",
+  "name": "NEXUS",
   "short_name": "NEXUS",
   "start_url": "/",
   "display": "standalone",
@@ -16,5 +16,8 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "scope": "/",
+  "description": "Personal command dashboard for daily missions, schedule, and Canvas.",
+  "orientation": "any"
 }

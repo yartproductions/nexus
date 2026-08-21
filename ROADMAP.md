@@ -40,32 +40,32 @@
 - [x] Today timeline
 - [x] Auto-place unfinished daily missions into free time
 - [ ] Google Calendar integration
-- [ ] Recurring schedule editor polish
 - [ ] Multi-day week view
 - [ ] Conflict warnings
 - [ ] Drag/drop timeline editing
 
 ## Priority 4 — Task Intelligence
 - [x] Concrete one-line "What to do" summary
-- [x] Word-count detection
-- [x] Reply-count detection
-- [x] File-upload detection
-- [x] Reading detection
-- [x] Quiz/exam detection
-- [x] In-person/on-paper detection
+- [x] Requirement extraction
 - [x] Cleaner mission steps
 - [x] Editable ETA
-- [ ] Improve edge cases as real Canvas assignments appear
+- [ ] Improve edge cases as real assignments appear
 - [ ] Learn realistic completion times later
 
 ## Priority 5 — Mobile / PWA
-- [x] Installable PWA base
+- [x] Installable PWA
 - [x] App icons
-- [x] Offline shell cache
-- [ ] Push notifications
-- [ ] Deadline reminders
-- [ ] Better one-thumb controls
-- [ ] Background sync
+- [x] Standalone launch
+- [x] Mobile-first objective layout
+- [x] Larger one-thumb controls
+- [x] Fixed mobile command bar
+- [x] Mobile status strip
+- [x] Media Dock collapses on mobile
+- [x] Offline app shell
+- [x] Last-known Canvas dashboard cache
+- [x] Local 24h / 6h / 1h deadline notifications
+- [ ] True server push while the app is fully closed
+- [ ] Server-side/background Canvas polling
 
 ## Priority 6 — Media Dock
 - [x] Light-blue Media Dock theme

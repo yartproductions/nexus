@@ -367,6 +367,200 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   font-size:7px;
 }
 
+
+/* PRIORITY 5 — MOBILE / PWA */
+.mobile-only{display:none}
+.mobile-statusbar{
+  display:none;
+}
+.mobile-install{
+  display:none;
+}
+@media(max-width:760px){
+  body{
+    padding-bottom:76px;
+    overflow-x:hidden;
+  }
+
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:40;
+    backdrop-filter:blur(14px);
+    background:rgba(5,12,17,.92);
+  }
+
+  .grid,
+  .main-grid,
+  .layout,
+  .hud-grid{
+    display:block !important;
+  }
+
+  .left,.center,.right{
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  .center{
+    order:1;
+  }
+
+  .left{
+    order:2;
+  }
+
+  .right{
+    order:3;
+  }
+
+  .panel{
+    margin-bottom:10px;
+  }
+
+  .inner{
+    padding:12px;
+  }
+
+  .focus,
+  .objective,
+  .core{
+    min-height:auto !important;
+  }
+
+  .mission-summary{
+    margin-top:10px;
+  }
+
+  .daily-strip{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .actions{
+    display:grid !important;
+    grid-template-columns:1fr 1fr;
+    gap:8px !important;
+  }
+
+  .actions .btn,
+  .btn{
+    min-height:42px;
+    font-size:9px;
+  }
+
+  .plan-actions{
+    gap:7px;
+  }
+
+  .mini-btn{
+    min-height:34px;
+    padding:7px 9px;
+    font-size:8px;
+  }
+
+  .plan-item{
+    grid-template-columns:auto 1fr;
+  }
+
+  .plan-item .iright{
+    display:none;
+  }
+
+  .eta-editor{
+    justify-content:flex-start;
+  }
+
+  .eta-input{
+    min-height:38px;
+    font-size:9px;
+  }
+
+  .media-dock,
+  #mediaDock,
+  .player-panel{
+    max-height:54px;
+    overflow:hidden;
+    transition:max-height .2s ease;
+  }
+
+  .media-dock.mobile-open,
+  #mediaDock.mobile-open,
+  .player-panel.mobile-open{
+    max-height:700px;
+  }
+
+  .bottomnav,
+  .bottom-nav,
+  nav.bottom,
+  .commandbar{
+    position:fixed !important;
+    left:8px;
+    right:8px;
+    bottom:8px;
+    z-index:60;
+    display:grid !important;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
+    background:rgba(5,12,17,.96);
+    border:1px solid rgba(127,216,255,.2);
+    backdrop-filter:blur(16px);
+    padding:7px;
+    border-radius:12px;
+  }
+
+  .bottomnav button,
+  .bottom-nav button,
+  nav.bottom button,
+  .commandbar button{
+    min-height:46px;
+    font-size:8px;
+  }
+
+  .mobile-statusbar{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:6px;
+    margin:8px 0 10px;
+  }
+
+  .mobile-statuschip{
+    border:1px solid rgba(127,216,255,.15);
+    padding:7px;
+    text-align:center;
+    background:rgba(127,216,255,.02);
+  }
+
+  .mobile-statuschip .label{
+    font-size:6px;
+    color:var(--muted);
+  }
+
+  .mobile-statuschip .value{
+    margin-top:3px;
+    font-size:9px;
+    color:var(--orange);
+  }
+
+  .mobile-install{
+    display:inline-flex;
+  }
+
+  .modal,
+  .modal-card{
+    width:calc(100vw - 18px) !important;
+    max-width:none !important;
+    max-height:88vh;
+  }
+
+  .schedule-shell{
+    grid-template-columns:1fr !important;
+  }
+
+  .timeline{
+    margin-left:38px;
+  }
+}
+
 @media(max-width:1050px){.layout{grid-template-columns:245px minmax(380px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.center{min-height:650px}}
 @media(max-width:760px){
 .app{padding:13px 13px 84px}.top{grid-template-columns:1fr auto;min-height:118px}.clock{grid-column:1/-1;grid-row:2}.time{font-size:24px}.logo{font-size:17px}.topright{font-size:8px}
@@ -386,9 +580,24 @@ background-size:52px 52px;mask-image:radial-gradient(circle,#000 20%,transparent
   <div class="clock mono"><div id="clock" class="time">--:--</div><div id="date" class="date">---</div><div class="sync">CANVAS LINK: <span id="syncText">CONNECTING</span><i class="syncdot"></i></div></div>
   <div class="topright mono">
     <span id="courseCount">-- COURSES</span><br><span id="syncAge">WAITING FOR SYNC</span>
-    <div class="topactions"><button id="syncBtn" class="btn">SYNC</button><button id="installBtn" class="btn" style="display:none">INSTALL</button></div>
+    <div class="topactions"><button id="notifyBtn" class="btn mobile-install" type="button">ALERTS</button><button id="installBtn" class="btn mobile-install" type="button" style="display:none">INSTALL</button><button id="syncBtn" class="btn">SYNC</button><button id="installBtn" class="btn" style="display:none">INSTALL</button></div>
   </div>
 </header>
+<div class="mobile-statusbar" id="mobileStatusbar">
+  <div class="mobile-statuschip">
+    <div class="label mono">NEXT</div>
+    <div id="mobileNext" class="value mono">--</div>
+  </div>
+  <div class="mobile-statuschip">
+    <div class="label mono">TODAY</div>
+    <div id="mobileToday" class="value mono">--</div>
+  </div>
+  <div class="mobile-statuschip">
+    <div class="label mono">SYNC</div>
+    <div id="mobileSync" class="value mono">--</div>
+  </div>
+</div>
+
 
 <section class="layout">
 <aside class="col left">
@@ -745,13 +954,169 @@ function renderDailyPlan(){
   if(next) setFocus(next);
 }
 
+
+let deferredInstallPrompt = null;
+let lastDashboardSync = null;
+
+function canvasCacheKey(){
+  return "nexus_canvas_cache_v1";
+}
+
+function saveCanvasCache(data){
+  try{
+    localStorage.setItem(canvasCacheKey(), JSON.stringify({
+      savedAt: Date.now(),
+      data
+    }));
+  }catch{}
+}
+
+function loadCanvasCache(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(canvasCacheKey()) || "null");
+    return raw?.data || null;
+  }catch{
+    return null;
+  }
+}
+
+function updateMobileStatus(){
+  const next = current?.name || dashboard?.next?.name || "CLEAR";
+  const todayCount = buildDailyPlan ? buildDailyPlan().length : 0;
+
+  const shortNext = next.length > 16 ? next.slice(0,14)+"…" : next;
+  if($("mobileNext")) $("mobileNext").textContent=shortNext;
+  if($("mobileToday")) $("mobileToday").textContent=String(todayCount);
+  if($("mobileSync")) $("mobileSync").textContent=lastDashboardSync ? "LIVE" : "CACHE";
+}
+
+function reminderSettingsKey(){
+  return "nexus_reminder_settings_v1";
+}
+
+function getReminderSettings(){
+  try{
+    return JSON.parse(localStorage.getItem(reminderSettingsKey()) || '{"enabled":false,"hours":[24,6,1]}');
+  }catch{
+    return {enabled:false,hours:[24,6,1]};
+  }
+}
+
+function notificationSeenKey(a,hours){
+  return `nexus_notified_${a.courseId}_${a.id}_${hours}`;
+}
+
+async function enableNotifications(){
+  if(!("Notification" in window)){
+    alert("Notifications are not supported in this browser.");
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+  if(permission !== "granted"){
+    alert("Notification permission was not granted.");
+    return;
+  }
+
+  localStorage.setItem(reminderSettingsKey(), JSON.stringify({
+    enabled:true,
+    hours:[24,6,1]
+  }));
+
+  if($("notifyBtn")) $("notifyBtn").textContent="ALERTS ON";
+  checkDeadlineReminders();
+}
+
+async function sendLocalNotification(title,body,url){
+  if(!("Notification" in window) || Notification.permission!=="granted") return;
+
+  if("serviceWorker" in navigator){
+    try{
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification(title,{
+        body,
+        icon:"/icon-192.png",
+        badge:"/icon-192.png",
+        data:{url:url||"/"},
+        tag:title+body
+      });
+      return;
+    }catch{}
+  }
+
+  new Notification(title,{body});
+}
+
+function checkDeadlineReminders(){
+  const settings=getReminderSettings();
+  if(!settings.enabled || !dashboard?.assignments?.length) return;
+
+  const now=Date.now();
+
+  dashboard.assignments.forEach(a=>{
+    if(!a.dueAt || a.submitted || a.locked) return;
+
+    const due=new Date(a.dueAt).getTime();
+    const diffHours=(due-now)/3600000;
+
+    for(const h of settings.hours){
+      if(diffHours>0 && diffHours<=h){
+        const key=notificationSeenKey(a,h);
+        if(localStorage.getItem(key)) continue;
+
+        localStorage.setItem(key,"1");
+        sendLocalNotification(
+          `NEXUS // ${h}H DEADLINE`,
+          `${a.name} is due ${relDue(a.dueAt)}.`,
+          a.htmlUrl
+        );
+        break;
+      }
+    }
+  });
+}
+
+function collapseMediaOnMobile(){
+  if(window.innerWidth>760) return;
+  const dock = document.querySelector(".media-dock,#mediaDock,.player-panel");
+  if(!dock) return;
+
+  dock.classList.remove("mobile-open");
+
+  const title = dock.querySelector(".ptitle,.panel-title,.title");
+  if(title && !title.dataset.mobileBound){
+    title.dataset.mobileBound="1";
+    title.style.cursor="pointer";
+    title.addEventListener("click",()=>dock.classList.toggle("mobile-open"));
+  }
+}
+
+window.addEventListener("beforeinstallprompt",(e)=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  if($("installBtn")) $("installBtn").style.display="inline-flex";
+});
+
+window.addEventListener("appinstalled",()=>{
+  deferredInstallPrompt=null;
+  if($("installBtn")) $("installBtn").style.display="none";
+});
+
+window.addEventListener("online",()=>{
+  if($("mobileSync")) $("mobileSync").textContent="LIVE";
+});
+
+window.addEventListener("offline",()=>{
+  if($("mobileSync")) $("mobileSync").textContent="OFFLINE";
+});
+
 async function loadCanvas(){
   $("syncBtn").textContent="SYNCING";
   try{
     const r=await fetch("/api/canvas",{cache:"no-store",headers:{Accept:"application/json"}});
     const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{throw new Error(`API returned non-JSON (${r.status})`)}
     if(!r.ok||!data.ok)throw new Error(data.details||data.error||`Canvas returned ${r.status}`);
-    dashboard=data;$("syncText").textContent="ONLINE";$("systemStatus").textContent="ONLINE";$("systemStatus").className="sval mono ok";$("courseCount").textContent=`${data.stats.courses} COURSES`;$("activeCount").textContent=`${data.stats.actionable} ACTIVE`;$("uniValue").textContent=data.stats.actionable;$("alertCount").textContent=`${data.stats.overdue} RISK`;$("syncAge").textContent=`SYNC ${new Date(data.syncedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`;renderQueue();renderDailyPlan();
+    dashboard=data;$("syncText").textContent="ONLINE";$("systemStatus").textContent="ONLINE";$("systemStatus").className="sval mono ok";$("courseCount").textContent=`${data.stats.courses} COURSES`;$("activeCount").textContent=`${data.stats.actionable} ACTIVE`;$("uniValue").textContent=data.stats.actionable;$("alertCount").textContent=`${data.stats.overdue} RISK`;$("syncAge").textContent=`SYNC ${new Date(data.syncedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`;renderQueue();renderDailyPlan();updateMobileStatus();collapseMediaOnMobile();checkDeadlineReminders();
     const alerts=[...(data.overdue||[]),...(data.dueSoon||[]).filter(x=>!(data.overdue||[]).some(o=>o.id===x.id&&o.courseId===x.courseId))].slice(0,6);
     $("alerts").innerHTML=alerts.length?alerts.map(itemHtml).join(""):`<div class="small mono ok">NO IMMEDIATE DEADLINE RISKS</div>`;setFocus(data.next);
   }catch(err){$("syncText").textContent="ERROR";$("systemStatus").textContent="ERROR";$("systemStatus").className="sval mono danger";$("focusTitle").textContent="SYNC FAILURE";$("focusCourse").textContent=err.message;$("missionQueue").innerHTML=`<div class="small mono danger">${esc(err.message)}</div>`;$("alerts").innerHTML=`<div class="small mono danger">CHECK /api/canvas</div>`}
@@ -767,6 +1132,27 @@ $("saveEtaBtn").addEventListener("click",()=>{
   renderQueue();
   if(typeof renderDailyPlan === "function") renderDailyPlan();
 });
+
+
+if($("notifyBtn")){
+  $("notifyBtn").addEventListener("click",enableNotifications);
+  if(getReminderSettings().enabled && Notification.permission==="granted"){
+    $("notifyBtn").textContent="ALERTS ON";
+  }
+}
+
+if($("installBtn")){
+  $("installBtn").addEventListener("click",async()=>{
+    if(!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt=null;
+    $("installBtn").style.display="none";
+  });
+}
+
+setInterval(checkDeadlineReminders, 15*60*1000);
+window.addEventListener("resize",collapseMediaOnMobile);
 
 $("syncBtn").addEventListener("click",loadCanvas);
 document.querySelectorAll(".qtab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".qtab").forEach(x=>x.classList.remove("active"));b.classList.add("active");currentScope=b.dataset.scope;renderQueue()}));

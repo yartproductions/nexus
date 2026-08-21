@@ -1,40 +1,58 @@
-NEXUS v5 — TASK INTELLIGENCE
+NEXUS v6 — MOBILE / PWA
 
-Priority 4 is implemented with short, concrete summaries.
+PRIORITY 5 BUILD
 
 NEW
 ---
-WHAT TO DO
-A one-line instruction such as:
-"Write 500 words and reply to 2 classmates."
+MOBILE
+- mobile-first stacking
+- larger tap targets
+- fixed bottom command navigation
+- compact mobile status strip
+- Media Dock collapsed by default on phones
 
-REQUIREMENTS
-NEXUS detects:
-- word counts
-- required replies
-- readings
-- uploads
-- quizzes
-- exams
-- in-person/on-paper work
+PWA
+- improved standalone manifest
+- install prompt button when supported
+- upgraded service-worker cache
+- offline shell support
 
-BREAK DOWN
-Short steps only.
+OFFLINE
+- latest successful Canvas dashboard is cached locally
+- NEXUS can show last-known mission data if Canvas cannot be reached
 
-ETA
-You can override NEXUS's estimated minutes.
-Your custom ETA is stored locally for that assignment.
+DEADLINE ALERTS
+- tap ALERTS and allow browser notifications
+- local checks at:
+  24 hours
+  6 hours
+  1 hour
+  before an assignment deadline
+- reminder state is stored locally to prevent duplicate spam
+
+IMPORTANT LIMITATION
+--------------------
+This version does NOT yet provide true server-originated push notifications
+while the app/device is fully closed for long periods.
+
+For that, NEXUS will eventually need:
+- a small backend database
+- Web Push subscriptions
+- scheduled server checks / cron
+- Canvas polling on the server
+
+That infrastructure belongs in a later backend pass and should not be faked
+with unreliable browser-only behavior.
 
 DEPLOY
 ------
-Replace your repo files with this build and commit.
-Vercel will redeploy.
+Replace your repo files with these files, commit, and let Vercel redeploy.
 
-Keep:
+Keep Vercel environment variables:
 CANVAS_URL
 CANVAS_TOKEN
 YOUTUBE_API_KEY
 
-NEXT
-----
-Priority 5 — Mobile / PWA.
+NEXT ROADMAP ITEM
+-----------------
+Priority 6 — Media Dock.
